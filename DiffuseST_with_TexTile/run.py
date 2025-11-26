@@ -192,14 +192,10 @@ if __name__ == "__main__":
     parser.add_argument('--ddpm_steps', type=int, default=999)
     parser.add_argument('--steps_to_save', type=int, default=1000)
     parser.add_argument('--ddim_steps', type=int, default=50)
-    
+    #not hardcoded model key
+    parser.add_argument('--model_key', type=str, required=True, help='Path to the directory containing the pretrained model files (e.g., blipdiffusion folder).')
     #Textile
-    parser.add_argument(
-        '--textile_guidance_scale', 
-        type=float, 
-        default=0.0, 
-        help="Strength of the TexTile loss for tileability constraint (0.0 to disable)."
-    )
+    parser.add_argument('--textile_guidance_scale', type=float, default=0.0, help="Strength of the TexTile loss for tileability constraint (0.0 to disable).")
 
     parser.add_argument('--inversion_prompt', type=str, default='')
     parser.add_argument('--extract-reverse', default=False, action='store_true', help="extract features during the denoising process")
