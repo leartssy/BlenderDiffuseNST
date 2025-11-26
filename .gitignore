@@ -1,0 +1,2 @@
+echo "textile/" >> .gitignore
+echo "blipdiffusion/" >> .gitignore
