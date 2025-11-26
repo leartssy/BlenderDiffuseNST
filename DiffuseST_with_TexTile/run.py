@@ -199,6 +199,7 @@ if __name__ == "__main__":
 
     parser.add_argument('--inversion_prompt', type=str, default='')
     parser.add_argument('--extract-reverse', default=False, action='store_true', help="extract features during the denoising process")
+    parser.add_argument('--name_prefix', type=str, default='')
     opt = parser.parse_args()
 
     run(opt)
