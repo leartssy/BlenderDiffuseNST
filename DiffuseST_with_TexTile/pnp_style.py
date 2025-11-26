@@ -57,17 +57,9 @@ class PNP(nn.Module):
     def run_pnp(self, content_latents, style_latents, style_file, content_fn="content", style_fn="style"):
         
         all_times = []
-        #previous code:
-        #pnp_f_t = int(self.config.ddpm_steps * self.config.alpha)
-        #pnp_attn_t = int(self.config.ddpm_steps * self.config.alpha)
         
-        #apply a delay of feature injection, so textile can inject
         pnp_f_t = int(self.config.ddpm_steps * self.config.alpha)
         pnp_attn_t = int(self.config.ddpm_steps * self.config.alpha)
-
-        #without delay:
-        #pnp_f_t = int(self.config.ddpm_steps * self.config.alpha)
-        #pnp_attn_t = int(self.config.ddpm_steps * self.config.alpha)
 
         content_step = self.init_pnp(conv_injection_t=pnp_f_t, qk_injection_t=pnp_attn_t)
         cond_subject = ""
