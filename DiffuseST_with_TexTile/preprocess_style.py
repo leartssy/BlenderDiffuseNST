@@ -187,7 +187,7 @@ class Preprocess(nn.Module):
 
 def run(opt):
     # timesteps to save
-    model_key = model_key
+    model_key = opt.model_key
     blip_diffusion_pipe = BlipDiffusionPipeline.from_pretrained(model_key, torch_dtype=torch.float16).to("cuda")
     toy_scheduler = PNDMScheduler.from_pretrained(model_key, subfolder="scheduler")
     data_paths = Path(opt.data_paths)
