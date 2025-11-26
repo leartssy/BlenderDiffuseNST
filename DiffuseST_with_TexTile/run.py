@@ -23,7 +23,7 @@ import textile
 #endTextileImports
 
 def run(opt):
-    model_key = "/content/drive/MyDrive/Colab Notebooks/DiffustionST_v2/blipdiffusion"
+    model_key = "/BlenderDiffuseNST/DiffuseST_with_TexTile"
     blip_diffusion_pipe = BLIP.from_pretrained(model_key, torch_dtype=torch.float16).to("cuda")
     
     
