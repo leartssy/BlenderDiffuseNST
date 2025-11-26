@@ -54,7 +54,7 @@ class PNP(nn.Module):
         return self.qk_injection_timesteps
     
 
-    def run_pnp(self, content_latents, style_latents, style_file, content_fn="content", style_fn="style", opt):
+    def run_pnp(self, content_latents, style_latents, style_file, content_fn="content", style_fn="style"):
         
         all_times = []
         
@@ -89,7 +89,7 @@ class PNP(nn.Module):
             content_step=content_step,
         ).images
 
-        output[0].save(f'{self.config.output_dir}/{opt.prefix_name}+{os.path.basename(content_fn)}+{os.path.basename(style_fn)}.png')
+        output[0].save(f'{self.config.output_dir}/{self.config.prefix_name}+{os.path.basename(content_fn)}+{os.path.basename(style_fn)}.png')
 
         return output
         
