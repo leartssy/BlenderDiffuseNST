@@ -89,7 +89,7 @@ class PNP(nn.Module):
             content_step=content_step,
         ).images
 
-        output[0].save(f'{self.config.output_dir}/{os.path.basename(content_fn)}+{os.path.basename(style_fn)}.png')
+        output[0].save(f'{self.config.output_dir}/{opt.prefix_name}+{os.path.basename(content_fn)}+{os.path.basename(style_fn)}.png')
 
         return output
         
