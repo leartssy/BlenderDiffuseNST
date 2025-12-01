@@ -94,7 +94,7 @@ def run(opt):
                 extract_reverse=opt.extract_reverse
             )
             # You might want to save the content_latents aggregated here:
-            # torch.save(content_latents.cpu(), aggregated_path)
+            torch.save(content_latents.cpu(), aggregated_path)
 
         else:
             # Fallback to the slow, step-by-step loading (if individual files exist but no aggregate)
@@ -146,6 +146,8 @@ def run(opt):
                 inversion_prompt=opt.inversion_prompt,
                 extract_reverse=opt.extract_reverse
             )
+            # You might want to save the content_latents aggregated here:
+            torch.save(style_latents.cpu(), aggregated_path)
         else:
             # Fallback to the slow, step-by-step loading
             print(f"Loading individual latents for {style_file} (Slow I/O)...")
