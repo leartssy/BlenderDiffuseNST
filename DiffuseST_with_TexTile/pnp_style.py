@@ -21,6 +21,7 @@ import yaml
 from tqdm import tqdm
 from transformers import logging
 from pnp_utils_style import *
+from pnp_utils_style import register_time
 import time
 #TexTile Integration
 import textile
@@ -58,8 +59,8 @@ class PNP(nn.Module):
         
         all_times = []
         
-        pnp_f_t = int(self.config.ddpm_steps * self.config.alpha)
-        pnp_attn_t = int(self.config.ddpm_steps * self.config.alpha)
+        pnp_f_t = int(self.config.ddim_steps * self.config.alpha)
+        pnp_attn_t = int(self.config.ddim_steps * self.config.alpha)
 
         content_step = self.init_pnp(conv_injection_t=pnp_f_t, qk_injection_t=pnp_attn_t)
         cond_subject = ""
@@ -317,27 +318,28 @@ class BLIP_With_Textile(BlipDiffusionPipeline):
             do_classifier_free_guidance = guidance_scale > 1.0
             
             if t in content_step:
-                content_lat = content_latents[t].unsqueeze(0)
+                content_lat = content_latents[i].unsqueeze(0)
                 latent_model_input = torch.cat([content_lat] + [latents] * 2 ) if do_classifier_free_guidance else latents
             else:
-                #style_lat = style_latents[t].unsqueeze(0)
-                #latent_model_input = torch.cat([style_lat] + [latents] * 2) if do_classifier_free_guidance else latents
+                style_lat = style_latents[i].unsqueeze(0)
+                latent_model_input = torch.cat([style_lat] + [latents] * 2) if do_classifier_free_guidance else latents
+                
                 # 1. Create a neutral, random noise latent (must match shape and device)
                 #remove style injection, replace with random noise
                 #rand_lat = torch.randn_like(latents[0]).unsqueeze(0).to(self.unet.device).to(torch.float16)
                 #latent_model_input = torch.cat([rand_lat] + [latents] * 2) if do_classifier_free_guidance else latents
 
                 #try: soft style injection:
-                style_lat = style_latents[t].unsqueeze(0) 
-                style_lat_float = style_lat.float() #temporarily cast to float
+                #style_lat = style_latents[i].unsqueeze(0) 
+                #style_lat_float = style_lat.float() #temporarily cast to float
                 # 2. Downscale (e.g., 32x32 -> 16x16) to blur and remove high-frequency structural noise
-                downscaled_lat = F.avg_pool2d(style_lat_float, kernel_size=2, stride=2) 
+                #downscaled_lat = F.avg_pool2d(style_lat_float, kernel_size=2, stride=2) 
                 
                 # 3. Upscale back to original latent size (e.g., 16x16 -> 32x32) to restore shape
-                soft_style_lat = F.interpolate(downscaled_lat, scale_factor=2, mode='bilinear', align_corners=False).to(style_lat.dtype)
+                #soft_style_lat = F.interpolate(downscaled_lat, scale_factor=2, mode='bilinear', align_corners=False).to(style_lat.dtype)
 
                 # 4. Inject the Soft Latent as the conditioned input
-                latent_model_input = torch.cat([soft_style_lat] + [latents] * 2) if do_classifier_free_guidance else latents
+                #latent_model_input = torch.cat([soft_style_lat] + [latents] * 2) if do_classifier_free_guidance else latents
                 #end soft latent injection
                 
             latent_model_input = latent_model_input.to(self.unet.device).to(torch.float16)
