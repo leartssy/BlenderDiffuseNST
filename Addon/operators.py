@@ -14,4 +14,20 @@ class DIFFUSEST_OT_RunGeneration(Operator):
 
     def execute(self, context):
         #add code logic
+        props = context.scene.diffusest_props
+
+        #give warning when no images selected
+        if not props.content_image:
+            self.report({'ERROR'}, "Content Image not selected.")
+            return {'CANCELLED'}
+        if not props.style_image:
+            self.report({'ERROR'}, "Style Image not selected.")
+            return {'CANCELLED'}
+        
+        #get property settings
+        content_name = props.content_image.name
+        style_name = props.style_image.name
+        strength = props.strength
+        steps = props.ddim_steps
+
         return {'FINISHED'}
