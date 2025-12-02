@@ -11,31 +11,33 @@
 # You should have received a copy of the GNU General Public License
 # along with this program. If not, see <http://www.gnu.org/licenses/>.
 
-
-
 bl_info = {
-    "name": "DiffusionStyleTransfer",
+    "name": "Diffusion Style Transfer",
     "author": "Lea Eschlberger",
-    "description": "Addon for Diffusion-Based Neural Style Transfer for tileable texture creation in Blender",
-    "blender": (2, 80, 0),
+    "description": "Diffusion-Based Neural Style Transfer",
+    "blender": (5, 00, 0),
     "version": (0, 0, 1),
-    "location": "UV Editor > Sidebar > DiffuseST Tab",
+    "location": "UV > Sidebar",
     "warning": "",
-    "category": "Generic",
+    "category": "NST",
 }
-
+import bpy
+import sys
+import os
 from . import auto_load
+
+addon_dir = os.path.dirname(__file__)
 
 auto_load.init()
 
+
 def register():
     auto_load.register()
- 
+
 
 def unregister():
-    
     auto_load.unregister()
-    
 
 if __name__ == "__main__":
+  
     register()
