@@ -14,8 +14,6 @@ class DIFFUSEST_PT_MainPanel(Panel):
     bl_category = 'NST'
 
     @classmethod
-    def poll(cls, context):
-        return context.object is not None
     
     def draw(self, context):
         """Draws the UI elements inside Panel"""

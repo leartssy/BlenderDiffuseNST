@@ -10,9 +10,9 @@
 #
 # You should have received a copy of the GNU General Public License
 # along with this program. If not, see <http://www.gnu.org/licenses/>.
-from . import auto_load
+
 import bpy
-from . import operators, ui_panel
+import importlib
 
 bl_info = {
     "name": "DiffusionStyleTransfer",
@@ -24,23 +24,30 @@ bl_info = {
     "warning": "",
     "category": "Generic",
 }
+# 2. Check if auto_load is already loaded (needed for VS Code reloads)
+if "auto_load" in locals():
+    # If the add-on is being reloaded by the VS Code extension,
+    # we need to reload the auto_load module to ensure changes are picked up.
+    importlib.reload(auto_load) 
+# 3. Now perform the import reliably.
+# Note: For typical Blender installation, you would still use 'from . import auto_load', 
+# but for the VS Code development environment, sometimes an absolute import is forced.
+try:
+    from . import auto_load
+except ImportError:
+    # Fallback for when running __init__.py directly in some dev environments
+    import auto_load
 
 auto_load.init()
 
-CLASSES = []
-
-
 def register():
     auto_load.register()
-    for cls in CLASSES:
-        bpy.utils.register_class(cls)
-
+ 
 
 def unregister():
+    
     auto_load.unregister()
-    #unregister in reversed order for safety
-    for cls in reversed(CLASSES):
-        bpy.utils.unregister_class(cls)
+    
 
 if __name__ == "__main__":
     register()
