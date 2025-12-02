@@ -2,6 +2,7 @@ import bpy
 import os
 import sys
 from bpy.props import IntProperty, FloatProperty, BoolProperty, StringProperty, EnumProperty
+from bpy.types import AddonPreferences
 
 #all the properties used by StyleTransfer
 class DIFFUSEST_Properties(bpy.types.PropertyGroup):
@@ -77,14 +78,14 @@ class DIFFUSEST_AddonPreferences(bpy.types.AddonPreferences):
         else:
             layout.label(text="Dependencies missing. Installation required", icon='ERROR')
 
-    #Installation Button
-    row = layout.row()
+        #Installation Button
+        row = layout.row()
 
-    row.operator("diffusest.install_deps", text="Install Dependencies", icon= 'DOWNLOAD')
+        row.operator("diffusest.install_deps", text="Install Dependencies", icon='IMPORT')
 
-    #show path information for debugging
-    layout.label(text=f"Blender Python Executable: {sys.executable}", icon='INFO')
-    layout.label(text=f"Addon Path: {os.path.dirname(__file__)}", icon='ASSET_MANAGER')
+        #show path information for debugging
+        layout.label(text=f"Blender Python Executable: {sys.executable}", icon='INFO')
+        layout.label(text=f"Addon Path: {os.path.dirname(__file__)}", icon='ASSET_MANAGER')
 
 #to make it accessible in the scene
 

@@ -1,9 +1,9 @@
 import bpy
 import os
 import sys
+import subprocess
 from mathutils import *
 from bpy.types import Operator
-from bpy_extras.io_utils import ImportHelper 
 
 D = bpy.data
 C = bpy.context
@@ -14,7 +14,7 @@ class DIFFUSEST_OT_RunGeneration(Operator):
     """Run the image generation process"""
     bl_idname = "diffusest.run_generation"
     bl_label = "Perform style transfer"
-    bl_options = {'REGISTER', 'UNDO'}
+    bl_options = {'REGISTER','UNDO'}
 
     def execute(self, context):
         #add code logic
@@ -30,7 +30,7 @@ class DIFFUSEST_OT_RunGeneration(Operator):
         
         #get property settings
         strength = props.strength
-        steps = props.ddim_steps
+        ddim_steps = props.ddim_steps
 
         return {'FINISHED'}
     
@@ -38,18 +38,18 @@ class DIFFUSEST_OT_RunGeneration(Operator):
 
 class DIFFUSEST_OLT_InstallDependencies(Operator):
     """Installs the required Python packages"""
-    bl_idname = "diffusest.install_deps",
-    bl_label = "Install DiffusionST Dependencies",
+    bl_idname = "diffusest.install_deps"
+    bl_label = "Install DiffusionST Dependencies"
     bl_options = {'REGISTER', 'INTERNAL'}
 
     def execute(self, context):
         
-        addon_prefs = os.path.dirname(os.path.abspath(__file__))
+        addon_dir = os.path.dirname(os.path.abspath(__file__))
         #path to requirements
         requirements_path = os.path.join(addon_dir, "requirements.txt")
 
         #safety for when it doesn´t exist
-        if not os.path.extists(requirements_path):
+        if not os.path.exists(requirements_path):
             self.report({'ERROR'}), "requirements.txt not found!"
             return {'CANCELLED'}
         
@@ -73,7 +73,7 @@ class DIFFUSEST_OLT_InstallDependencies(Operator):
 
             #check if succeeded
             if process.returncode == 0:
-                addon_prefs.is_dependencies_installed = True
+                addon_dir.is_dependencies_installed = True
                 self.report({'INFO'}, "Installation complete. Restart Blender.")
             else:
                 self.report({'INFO'}, "Installation failed: {process.stderr}") #process.strderr = the error message

@@ -17,6 +17,9 @@ class DIFFUSEST_PT_MainPanel(Panel):
         """Draws the UI elements inside Panel"""
         layout = self.layout
         props = context.scene.diffusest_props
+        #get if dependencies installed
+        addon_prefs = context.preferences.addons[__package__].preferences
+        is_ready = addon_prefs.is_dependencies_installed
 
         box = layout.box()
         box.label(text="Image Inputs", icon='FILE_FOLDER')
@@ -30,5 +33,13 @@ class DIFFUSEST_PT_MainPanel(Panel):
         box.prop(props, "seed")
 
         layout.separator()
+        row = layout.row()
 
-        layout.operator("diffusest.run_generation", text="Run Style Transfer", icon='NODE')
+        #disable the run button if dependencies not installed
+        row.enabled = is_ready
+        row.operator("diffusest.run_generation", text="Run Style Transfer", icon='NODE')
+        
+        
+
+        if not is_ready:
+            layout.label(text="Install Dependencies in Addon Preferences", icon='INFO')
