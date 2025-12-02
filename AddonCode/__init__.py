@@ -10,6 +10,9 @@
 #
 # You should have received a copy of the GNU General Public License
 # along with this program. If not, see <http://www.gnu.org/licenses/>.
+from . import auto_load
+import bpy
+from . import operators, ui_panel
 
 bl_info = {
     "name": "DiffusionStyleTransfer",
@@ -17,19 +20,27 @@ bl_info = {
     "description": "Addon for Diffusion-Based Neural Style Transfer for tileable texture creation in Blender",
     "blender": (2, 80, 0),
     "version": (0, 0, 1),
-    "location": "",
+    "location": "UV Editor > Sidebar > DiffuseST Tab",
     "warning": "",
     "category": "Generic",
 }
 
-from . import auto_load
-
 auto_load.init()
+
+CLASSES = []
 
 
 def register():
     auto_load.register()
+    for cls in CLASSES:
+        bpy.utils.register_class(cls)
 
 
 def unregister():
     auto_load.unregister()
+    #unregister in reversed order for safety
+    for cls in reversed(CLASSES):
+        bpy.utils.unregister_class(cls)
+
+if __name__ == "__main__":
+    register()
