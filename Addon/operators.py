@@ -1,9 +1,11 @@
 import bpy
 from mathutils import *
 from bpy.types import Operator
+from bpy_extras.io_utils import ImportHelper 
 
 D = bpy.data
 C = bpy.context
+
 
 #main operator for calling DiffuseST
 class DIFFUSEST_OT_RunGeneration(Operator):
@@ -25,8 +27,6 @@ class DIFFUSEST_OT_RunGeneration(Operator):
             return {'CANCELLED'}
         
         #get property settings
-        content_name = props.content_image.name
-        style_name = props.style_image.name
         strength = props.strength
         steps = props.ddim_steps
 

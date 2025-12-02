@@ -16,8 +16,19 @@ class DIFFUSEST_PT_MainPanel(Panel):
     def draw(self, context):
         """Draws the UI elements inside Panel"""
         layout = self.layout
+        props = context.scene.diffusest_props
 
-        row = layout.row()
-        row.label(text="Image Generation Parameters")
+        box = layout.box()
+        box.label(text="Image Inputs", icon='FILE_FOLDER')
+        box.prop(props, "content_folder")
+        box.prop(props, "style_folder")
+
+        box = layout.box()
+        box.label(text="Generation Settings", icon='SETTINGS')
+        box.prop(props, "strength")
+        box.prop(props, "ddim_steps")
+        box.prop(props, "seed")
+
+        layout.separator()
 
         layout.operator("diffusest.run_generation", text="Run Style Transfer", icon='NODE')

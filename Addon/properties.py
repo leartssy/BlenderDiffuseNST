@@ -1,20 +1,33 @@
 import bpy
-from bpy.props import IntProperty, FloatProperty, PointerProperty, EnumProperty
+from bpy.props import IntProperty, FloatProperty, StringProperty, EnumProperty
 
 #all the properties used by StyleTransfer
 class DIFFUSEST_Properties(bpy.types.PropertyGroup):
     """Container for all Diffusion Style Transfer settings."""
 
-    content_image: PointerProperty(
-        type=bpy.types.Image,
-        name="Content Image",
-        description="The source content image",
-    )
+    #content_image: StringProperty(
+        #type=bpy.types.Image,
+        #name="Content Images Path",
+        #description="The source content image",
+    #)
 
-    style_image: PointerProperty(
-        type=bpy.types.Image,
-        name="Style Image",
-        description="The source style image",
+    #style_image: StringProperty(
+        #type=bpy.types.Image,
+        #name="Style Images Path",
+        #description="The source style image",
+    #)
+    content_folder: StringProperty(
+        name="Content Folder",
+        description="Folder containing content images",
+        default="",
+        subtype='DIR_PATH'
+    ) 
+
+    style_folder: StringProperty(
+        name="Style Folder",
+        description="Folder containing style images",
+        default="",
+        subtype='DIR_PATH'
     ) 
 
     strength: FloatProperty(
