@@ -13,7 +13,6 @@ class DIFFUSEST_PT_MainPanel(Panel):
     bl_region_type = 'UI'
     bl_category = 'NST'
 
-    @classmethod
     def draw(self, context):
         """Draws the UI elements inside Panel"""
         layout = self.layout
