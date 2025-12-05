@@ -1,6 +1,7 @@
 import bpy
 from bpy.types import Panel
 from mathutils import *
+from .dependency_check import IS_DEPENDENCIES_AVAILABLE
 
 D = bpy.data
 C = bpy.context
@@ -16,11 +17,17 @@ class DIFFUSEST_PT_MainPanel(Panel):
     def draw(self, context):
         """Draws the UI elements inside Panel"""
         layout = self.layout
-        props = context.scene.diffusest_props
-        #get if dependencies installed
-        addon_prefs = context.preferences.addons[__package__].preferences
-        is_ready = addon_prefs.is_dependencies_installed
 
+        #guard clause to prevent crashing during add-on reload
+        if not hasattr(context.scene, 'diffusest_props'):
+            layout.label(text="Add-on loading...", icon='TIME')
+            return
+        
+        props = context.scene.diffusest_props
+
+        is_ready = IS_DEPENDENCIES_AVAILABLE
+
+        
         box = layout.box()
         box.label(text="Image Inputs", icon='FILE_FOLDER')
         box.prop(props, "content_folder")
@@ -35,11 +42,14 @@ class DIFFUSEST_PT_MainPanel(Panel):
         layout.separator()
         row = layout.row()
 
-        #disable the run button if dependencies not installed
-        row.enabled = is_ready
-        row.operator("diffusest.run_generation", text="Run Style Transfer", icon='NODE')
-        
-        
-
+        # Check dependency status and set button properties
+        row.enabled = is_ready # Enable/disable the row
+        row.operator("diffusest.run_generation", text="Run Style Transfer (Disabled)", icon='NODE')
         if not is_ready:
-            layout.label(text="Install Dependencies in Addon Preferences", icon='INFO')
+            row.label(text="Install Dependencies in Addon Preferences", icon='INFO')
+            # Show the Run button, which is disabled by the row.enabled flag
+            
+        else:
+            # The button is enabled only when dependencies are ready
+            layout.separator()
+            row.operator("diffusest.run_generation", text="Run Style Transfer", icon='NODE')
