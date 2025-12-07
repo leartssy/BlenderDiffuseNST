@@ -96,7 +96,7 @@ def setupStyleTransferModel():
     try:
         import torch
         from diffusers import BlipDiffusionPipeline
-        pipe = BlipDiffusionPipeline.from_pretrained("salesforce/blipdiffusion", torch_dtype=torch.bfloat16, device_map="cuda", cache_dir=str(output_dir))
+        pipe = BlipDiffusionPipeline.from_pretrained("salesforce/blipdiffusion", torch_dtype=torch.bfloat16, cache_dir=str(output_dir)).to("cuda")
 
         pipe.save_pretrained(str(output_dir))
         print("Model downloaded")
