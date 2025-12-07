@@ -1,7 +1,7 @@
 import bpy
 from bpy.types import Panel
 from mathutils import *
-from .utils import IS_DEPENDENCIES_AVAILABLE
+from .utils import IS_DEPENDENCIES_AVAILABLE, IS_MODEL_DOWNLOADED
 
 D = bpy.data
 C = bpy.context
@@ -25,7 +25,11 @@ class DIFFUSEST_PT_MainPanel(Panel):
         
         props = context.scene.diffusest_props
 
-        is_ready = IS_DEPENDENCIES_AVAILABLE
+        is_ready = False
+        if IS_DEPENDENCIES_AVAILABLE and IS_MODEL_DOWNLOADED:
+            is_ready = True
+        else:
+            is_ready = False
 
         
         box = layout.box()
@@ -44,12 +48,8 @@ class DIFFUSEST_PT_MainPanel(Panel):
 
         # Check dependency status and set button properties
         row.enabled = is_ready # Enable/disable the row
-        row.operator("diffusest.run_generation", text="Run Style Transfer (Disabled)", icon='NODE')
+        row.operator("diffusest.run_generation", text="Run Style Transfer", icon='NODE')
         if not is_ready:
-            row.label(text="Install Dependencies in Addon Preferences", icon='INFO')
+            row.label(text="Install Dependencies and Model in Addon Preferences", icon='INFO')
             # Show the Run button, which is disabled by the row.enabled flag
             
-        else:
-            # The button is enabled only when dependencies are ready
-            layout.separator()
-            row.operator("diffusest.run_generation", text="Run Style Transfer", icon='NODE')
