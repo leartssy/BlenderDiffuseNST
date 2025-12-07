@@ -9,7 +9,8 @@ from mathutils import *
 from bpy.types import Operator
 from bpy.app.translations import pgettext_iface as _
 from .__init__ import get_user_modules_path
-from .utils import IS_DEPENDENCIES_AVAILABLE, IS_MODEL_DOWNLOADED,IS_REPO_DOWNLOADED, check_model_downloads, check_dependencies, check_repo_downloads
+from .utils import *
+from .main import *
 
 D = bpy.data
 C = bpy.context
@@ -107,17 +108,17 @@ def setupStyleTransferModel():
 
 def download_DiffuseST_repo():
     #clone repository
-    repo_url = "https://github.com/I2-Multimedia-Lab/DiffuseST.git"
+    repo_url = "https://github.com/leartssy/DiffusionStyleTransfer_Tileable.git"
     #set an output directory
-    output_dir = Path.home() / "Blender_AI_Models" / "diffuseST_repo"
+    parent_dir = Path.home() / "Blender_AI_Models"
     #create directory if doesn´t exist
-    output_dir.mkdir(parents=True, exist_ok=True)
-    print(f"Downloading DiffuseST repo to: {str(output_dir)}")
-
+    parent_dir.mkdir(parents=True, exist_ok=True)
+    output_dir = get_repo_root_path()
+    print(f"Downloading DiffuseST repo to: {str(parent_dir)}")
     try:
         subprocess.check_call([
-            "git","clone",repo_url, output_dir
-        ])
+            "git","clone",repo_url
+        ], cwd=str(parent_dir))
         
         check_repo_downloads()
         print(f"Repository successfully cloned to {output_dir}")
@@ -210,12 +211,25 @@ class DIFFUSEST_OLT_RunGeneration(Operator):
             self.report({'ERROR'}, "Add-on properties failed to load.")
             return {'CANCELLED'}
         
-        # 1. Dependency Check: Use the global flag
-        if not IS_DEPENDENCIES_AVAILABLE:
-            self.report({'ERROR'}, "Dependencies are not available. Install them in Add-on Preferences and restart Blender.")
-            return {'CANCELLED'}
+        else:
+            #get all needed properties
+            props = context.scene.diffusest_props
 
-        # ... (Rest of the generation logic placeholder)
+            repo_dir = get_repo_root_path()
+            script_path = str(repo_dir / "run.py")
+            model_key = str(get_model_path())
+            content_folder = props.content_folder
+            style_folder = props.style_folder
+            output_folder = props.output_folder
+            strength = props.strength
+            args = ["--content_path", content_folder, "--style_path", style_folder, "--output_dir", output_folder, "--alpha", strength, "--model_key", model_key]
+
+            try:
+                #run normal batch style transfer
+                run_style_transfer(repo_dir,script_path, str(args))
+                self.report(f"Finished style transfer, Find images in {output_folder}")
+                return {'FINISHED'}
+            except Exception as e:
+                self.report({'ERROR'}, f"Generation failed: Error: {e}")
+                return {'CANCELLED'}
         
-        self.report({'INFO'}, "Dependencies OK. Starting generation (Model logic placeholder)...")
-        return {'FINISHED'}

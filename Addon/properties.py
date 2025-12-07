@@ -34,6 +34,13 @@ class DIFFUSEST_Properties(bpy.types.PropertyGroup):
         subtype='DIR_PATH'
     ) 
 
+    output_folder:StringProperty(
+        name="Output Folder",
+        description="Folder for output images",
+        default="",
+        subtype='DIR_PATH'
+    ) 
+
     strength:FloatProperty(
         name="Style Strength",
         description="Stylization strength (0.0 to 1.0)",

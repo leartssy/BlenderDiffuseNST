@@ -37,20 +37,30 @@ def check_dependencies():
         print(f"Diffusion Style Transfer Addon: General error loading libraries: {e}")
         IS_DEPENDENCIES_AVAILABLE = False
 
+def get_model_path():
+    """Calculates and returns the standard path for the cloned repository."""
+    # Ensure this path EXACTLY matches the destination used in your clone function
+    return Path.home() / "Blender_AI_Models" / "blipdiffusion_download"
+
 def check_model_downloads():
     """Check if all needed models are downloaded"""
     global IS_MODEL_DOWNLOADED
     IS_MODEL_DOWNLOADED = False
-    model_path = Path.home() / "Blender_AI_Models" / "blipdiffusion_download"
-    if os.path.exists(model_path) and os.path.exists(model_path / "model_index.json"):
+    model_path = get_model_path()
+    if model_path.exists() and (model_path / "model_index.json").exists():
         IS_MODEL_DOWNLOADED = True
+
+def get_repo_root_path():
+    """Calculates and returns the standard path for the cloned repository."""
+    # Ensure this path EXACTLY matches the destination used in your clone function
+    return Path.home() / "Blender_AI_Models" / "DiffusionStyleTransfer_Tileable"
 
 def check_repo_downloads():
     """Check if all needed models are downloaded"""
     global IS_REPO_DOWNLOADED
     IS_REPO_DOWNLOADED = False
-    repo_path = Path.home() / "Blender_AI_Models" / "diffuseST_repo"
-    if os.path.exists(repo_path) and os.path.exists(repo_path):
+    repo_path = get_repo_root_path()
+    if repo_path.exists():
         IS_REPO_DOWNLOADED = True
 
 # Call the check functions immediately on import

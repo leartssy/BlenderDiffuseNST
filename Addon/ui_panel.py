@@ -36,6 +36,7 @@ class DIFFUSEST_PT_MainPanel(Panel):
         box.label(text="Image Inputs", icon='FILE_FOLDER')
         box.prop(props, "content_folder")
         box.prop(props, "style_folder")
+        box.prop(props, "output_folder")
 
         box = layout.box()
         box.label(text="Generation Settings", icon='SETTINGS')
