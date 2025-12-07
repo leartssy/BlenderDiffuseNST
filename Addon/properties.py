@@ -3,7 +3,7 @@ import os
 import sys
 from bpy.props import IntProperty, FloatProperty, BoolProperty, StringProperty, EnumProperty
 from bpy.types import AddonPreferences
-from .utils import IS_DEPENDENCIES_AVAILABLE, IS_MODEL_DOWNLOADED
+from .utils import IS_DEPENDENCIES_AVAILABLE, IS_MODEL_DOWNLOADED, IS_REPO_DOWNLOADED
 
 #all the properties used by StyleTransfer
 class DIFFUSEST_Properties(bpy.types.PropertyGroup):
@@ -108,6 +108,21 @@ class DIFFUSEST_AddonPreferences(bpy.types.AddonPreferences):
             row = layout.row()
             row.enabled = False
             row.operator("diffusest.download_blip", text = "Install Dependencies first.", icon='IMPORT')
+        #Button for installing repository
+        layout.separator()
+        if IS_DEPENDENCIES_AVAILABLE and IS_MODEL_DOWNLOADED:
+            if IS_REPO_DOWNLOADED:
+                row = layout.row()
+                row.enabled =False
+                row.operator("diffusest.download_repo", text = "Repository already downloaded.", icon='CHECKMARK')
+            else:
+                row = layout.row()
+                row.enabled =True
+                row.operator("diffusest.download_repo", text = "Download DiffuseST Repository.", icon='IMPORT')
+        else:
+            row = layout.row()
+            row.enabled = False
+            row.operator("diffusest.download_repo", text = "Install Dependencies and Model first.", icon='IMPORT')
         #information
         layout.separator()
         layout.label(text=f"Blender Python Executable: {sys.executable}", icon='INFO')

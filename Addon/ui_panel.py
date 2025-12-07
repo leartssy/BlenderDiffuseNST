@@ -1,7 +1,7 @@
 import bpy
 from bpy.types import Panel
 from mathutils import *
-from .utils import IS_DEPENDENCIES_AVAILABLE, IS_MODEL_DOWNLOADED
+from .utils import IS_DEPENDENCIES_AVAILABLE, IS_MODEL_DOWNLOADED, IS_REPO_DOWNLOADED
 
 D = bpy.data
 C = bpy.context
@@ -26,7 +26,7 @@ class DIFFUSEST_PT_MainPanel(Panel):
         props = context.scene.diffusest_props
 
         is_ready = False
-        if IS_DEPENDENCIES_AVAILABLE and IS_MODEL_DOWNLOADED:
+        if IS_DEPENDENCIES_AVAILABLE and IS_MODEL_DOWNLOADED and IS_REPO_DOWNLOADED:
             is_ready = True
         else:
             is_ready = False
@@ -50,6 +50,6 @@ class DIFFUSEST_PT_MainPanel(Panel):
         row.enabled = is_ready # Enable/disable the row
         row.operator("diffusest.run_generation", text="Run Style Transfer", icon='NODE')
         if not is_ready:
-            row.label(text="Install Dependencies and Model in Addon Preferences", icon='INFO')
+            row.label(text="Install all requirements in Addon Preferences", icon='INFO')
             # Show the Run button, which is disabled by the row.enabled flag
             

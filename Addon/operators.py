@@ -9,7 +9,7 @@ from mathutils import *
 from bpy.types import Operator
 from bpy.app.translations import pgettext_iface as _
 from .__init__ import get_user_modules_path
-from .utils import IS_DEPENDENCIES_AVAILABLE,check_model_downloads, check_dependencies
+from .utils import IS_DEPENDENCIES_AVAILABLE, IS_MODEL_DOWNLOADED,IS_REPO_DOWNLOADED, check_model_downloads, check_dependencies, check_repo_downloads
 
 D = bpy.data
 C = bpy.context
@@ -84,6 +84,7 @@ def install_dependencies():
 
 
 def setupStyleTransferModel():
+    #Download the model
 
     #set an output directory
     output_dir = Path.home() / "Blender_AI_Models" / "blipdiffusion_download"
@@ -104,7 +105,26 @@ def setupStyleTransferModel():
         check_model_downloads()
         print(f"Error occurred during download: {str(e)}")
 
+def download_DiffuseST_repo():
+    #clone repository
+    repo_url = "https://github.com/I2-Multimedia-Lab/DiffuseST.git"
+    #set an output directory
+    output_dir = Path.home() / "Blender_AI_Models" / "diffuseST_repo"
+    #create directory if doesn´t exist
+    output_dir.mkdir(parents=True, exist_ok=True)
+    print(f"Downloading DiffuseST repo to: {str(output_dir)}")
 
+    try:
+        subprocess.check_call([
+            "git","clone",repo_url, output_dir
+        ])
+        
+        check_repo_downloads()
+        print(f"Repository successfully cloned to {output_dir}")
+    except FileNotFoundError:
+        print("Git executable not found. Ensure git is installed on operating system!")
+    except:
+        print("Error occured while cloning")
 
 
 #main operator for installing
@@ -112,7 +132,6 @@ class DIFFUSEST_OT_InstallDependencies(Operator):
     """Installs required Python packages using Blender's Python environment"""
     bl_idname = "diffusest.install_deps"
     bl_label = "Install DiffusionST Dependencies"
-    
 
     install_success: bool = False
     
@@ -159,6 +178,25 @@ class DIFFUSEST_OLT_SetupModel(Operator):
                     return {'CANCELLED'}
             except Exception as e:
                 self.report({'ERROR'},f"Model download failed: {str(e)}.")
+                return {'CANCELLED'}
+            
+class DIFFUSEST_OLT_DownloadRepo(Operator):
+    """Download the DiffuseST Repo."""
+    bl_idname = "diffusest.download_repo"
+    bl_label = "Download DiffuseST repo"
+    def execute(self,context):
+        if IS_DEPENDENCIES_AVAILABLE and IS_MODEL_DOWNLOADED:
+            self.report({'INFO'}, "Starting Repo Download...")
+            try:
+                download_DiffuseST_repo()
+                if IS_REPO_DOWNLOADED:
+                    self.report({'INFO'}, "Repo successfully downloaded.")
+                    return {'FINISHED'}
+                else:
+                    self.report({'ERROR'}, "Repo download failed.")
+                    return {'CANCELLED'}
+            except Exception as e:
+                self.report({'ERROR'},f"Repo download failed: {str(e)}.")
                 return {'CANCELLED'}
     
 class DIFFUSEST_OLT_RunGeneration(Operator):

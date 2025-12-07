@@ -6,6 +6,7 @@ from pathlib import Path
 
 IS_DEPENDENCIES_AVAILABLE = False
 IS_MODEL_DOWNLOADED = False
+IS_REPO_DOWNLOADED = False
 
 def check_dependencies():
     """Attempt to import core dependency and set the global flag."""
@@ -44,6 +45,15 @@ def check_model_downloads():
     if os.path.exists(model_path) and os.path.exists(model_path / "model_index.json"):
         IS_MODEL_DOWNLOADED = True
 
+def check_repo_downloads():
+    """Check if all needed models are downloaded"""
+    global IS_REPO_DOWNLOADED
+    IS_REPO_DOWNLOADED = False
+    repo_path = Path.home() / "Blender_AI_Models" / "diffuseST_repo"
+    if os.path.exists(repo_path) and os.path.exists(repo_path):
+        IS_REPO_DOWNLOADED = True
+
 # Call the check functions immediately on import
 check_dependencies()
 check_model_downloads()
+check_repo_downloads()
