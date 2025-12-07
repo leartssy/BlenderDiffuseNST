@@ -3,7 +3,7 @@ import os
 import sys
 from bpy.props import IntProperty, FloatProperty, BoolProperty, StringProperty, EnumProperty
 from bpy.types import AddonPreferences
-from .dependency_check import IS_DEPENDENCIES_AVAILABLE
+from .utils import IS_DEPENDENCIES_AVAILABLE
 
 #all the properties used by StyleTransfer
 class DIFFUSEST_Properties(bpy.types.PropertyGroup):
@@ -59,6 +59,7 @@ class DIFFUSEST_Properties(bpy.types.PropertyGroup):
         min=-1,
     )
 
+
 #addon Requirements in Addon Preferences -> button for installing
 class DIFFUSEST_AddonPreferences(bpy.types.AddonPreferences):
     bl_idname = __package__
@@ -75,27 +76,7 @@ class DIFFUSEST_AddonPreferences(bpy.types.AddonPreferences):
         layout = self.layout
         prefs = context.preferences.addons[__package__].preferences
         
-        #check installation status
-        #if self.is_installing:
-            #layout.separator()
-            #layout.label(text="Installing Dependencies... Please wait.", icon='TIME')
-
-            #row = layout.row()
-            #row.prop(self, "is_installing", toggle=True, text="Installation in progress...", icon='PREVIEW_RANGE')
-            #layout.separator()
-            #return
-        
-        #if not self.is_installing and not IS_DEPENDENCIES_AVAILABLE:
-            #box = layout.box()
-            #box.label(text="Installation Complete!", icon='CHECKMARK')
-            #box.label(text="**RESTART BLENDER** to load the dependencies.", icon='NONE')
-            
-            # Button is permanently disabled if installation is flagged as done
-            #row = layout.row()
-            #row.enabled = False 
-            #row.operator("diffusest.install_deps", text="Dependencies Installed (Restart Required)", icon='IMPORT')
-        #check installation status
-
+    
         if IS_DEPENDENCIES_AVAILABLE:
             layout.label(text="Dependencies loaded and ready!", icon='CHECKMARK')
 
@@ -112,6 +93,13 @@ class DIFFUSEST_AddonPreferences(bpy.types.AddonPreferences):
             row.operator("diffusest.install_deps", text="Install Dependencies", icon='IMPORT')
 
         #show path information for debugging
+        layout.separator()
+        #Button for downloading model
+        row = layout.row()
+        row.enabled =True
+        row.operator("diffusest.download_blip", text = "Download Blipdiffusion Model.", icon='IMPORT')
+
+        #information
         layout.separator()
         layout.label(text=f"Blender Python Executable: {sys.executable}", icon='INFO')
         layout.label(text=f"Addon Path: {os.path.dirname(__file__)}", icon='ASSET_MANAGER')

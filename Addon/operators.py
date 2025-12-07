@@ -1,119 +1,91 @@
 import bpy
 import os
-import platform
-import ctypes
 from importlib.util import find_spec
 import sys
 import subprocess
-import threading
+from pathlib import Path
 from mathutils import *
 from bpy.types import Operator
 from bpy.app.translations import pgettext_iface as _
-from .__init__ import get_user_modules_path 
-from .dependency_check import IS_DEPENDENCIES_AVAILABLE
-
+from .__init__ import get_user_modules_path
+from .utils import IS_DEPENDENCIES_AVAILABLE
 
 D = bpy.data
 C = bpy.context
 
 
-
-#Paths Defined in __init__.py
-MODULES_PATH = get_user_modules_path()
-# Global variable if installed
-IS_DEPENDENCIES_AVAILABLE = False
-
-#######try to make Blender not freeze: currently not working because of permission issues######
-#make function for installing, so blender doesn´t freeze while installing
-
-#def install_thread_func(addon_dir, operator_instance, target_path):
-    #"""Function run in seperate thread to install dependencies"""
-    
-    #path to requirements
-    #normal_req_path = os.path.join(addon_dir, "requirements.txt")
-    #requirements_path = f"{normal_req_path}"
-    #path to Blenders executable
-    #python_exec = sys.executable
-
-    #installation command
-    #command = [
-        #python_exec,
-        #'-m',
-        #'pip',
-        #'install',
-        #'--upgrade',
-        #'--target', target_path,
-        #'-r',
-        #requirements_path
-    #]
-
-    #execute command
-    #try:
-        # Run the installation (Blocking call in a separate thread)
-        #operator_instance.install_report = f"Starting installation to: {target_path}..."
-        
-        #process = subprocess.run(
-            #command,
-            #stdout=subprocess.PIPE,
-            #stderr=subprocess.PIPE,
-            #check=True
-        #)
-
-        # Check output for potential warnings that aren't fatal errors
-        #operator_instance.install_success = True
-        #operator_instance.install_report = "Installation successful. Blender must be restarted to finalize dependency check."
-        
-    #except subprocess.CalledProcessError as e: #typical errors
-        #store failure
-        #operator_instance.install_success = False
-        #operator_instance.report({'ERROR'}, f"Installation failed (Error Code {e.returncode}): {e.stderr.decode('utf-8')}")
-        
-    #except Exception as e: #unforseen errors
-        #operator_instance.install_success = False
-        #operator_instance.report({'ERROR'}, f"An unexpected error occurred during installation: {e}")
-    #Mark thread as completed
-    #finally:
-        #operator_instance.is_thread_finished = True
-
+#helper functions
 
 def install_dependencies():
-    #ensure pip is installed
+
+    #Basic setup
     import ensurepip
     ensurepip.bootstrap()
 
+    #make sure target path is in sys path
+    #Install new dependencies
+    target_path = get_user_modules_path()
     subprocess.check_call([sys.executable, "-m", "pip", "install", "--upgrade", "pip", "setuptools", "wheel"])
-    import pip
 
-    #find path of python scripts blender
-    custom_path = f"C:\Program Files\Blender Foundation\Blender 5.0\5.0\python\Scripts"
-    if custom_path not in sys.path:
-        sys.path.append(custom_path)
-    print(sys.path) # Verify the path has been added
+    
+    if target_path not in sys.path:
+        sys.path.append(target_path)
 
-    #uninstall old numpy (can lead to conflicts)
-    subprocess.check_call([sys.executable, "-m", "pip", "uninstall", "-y", "numpy"])
-    subprocess.check_call([sys.executable, "-m", "pip", "install", "numpy==2.2.6"])
-    #install torch etc
+    
+    #numpy
+    subprocess.check_call([sys.executable, "-m", "pip", "uninstall","-y", "numpy"])
+    subprocess.check_call([sys.executable, "-m", "pip", "install", "numpy==2.2.6", "--target",target_path, "--force-reinstall"])
+
+    #install torch -> 2.1.0 is safest version with blender
     #cuda 121 version
     subprocess.check_call([
-        sys.executable, "-m", "pip", "install", 
-        "torch", "torchvision", "torchaudio",
-        "--index-url", "https://download.pytorch.org/whl/cu121"
+        sys.executable, "-m", "pip", "install",
+        "torch==2.1.0", "torchvision==0.16.0", "torchaudio==2.1.0",
+        "--index-url", "https://download.pytorch.org/whl/cu121","--target", target_path, "--no-deps", "--ignore-installed","--force-reinstall"
     ])
-    #cpu version (not recommended, because slow)
-    #subprocess.check_call([
-        #sys.executable, "-m", "pip", "install", 
-        #"torch+cpu", "torchvision+cpu", "torchaudio+cpu",
-       # "--index-url", "https://download.pytorch.org/whl/cpu"
-    #])
-    #check if installed
+
+    #install other stuff from requirements
+    #get path of requirements file
+    addon_dir = os.path.dirname(__file__)
+    req_path = os.path.join(addon_dir, "requirements.txt")
+
+    subprocess.check_call([
+        sys.executable, "-m", "pip", "install", "-r", req_path,"--target", target_path, "--ignore-installed"
+    ])
+    
+    #check if installed correctly
     try:
         import torch
+        import diffusers
         print("Dependencies installed. Restart Blender.")
     except ImportError:
-        print("ImportError")
-    except Exception:
-        print("ExceptionError")
+        print("ImportError: Dependencies not found after installation. Restart Blender.")
+    except Exception as e:
+        print(f"ExceptionError during final check: {e}")
+
+
+def setupStyleTransferModel():
+
+    #set an output directory
+    output_dir = Path.home() / "Blender_AI_Models" / "blipdiffusion_download"
+    #create directory
+    output_dir.mkdir(parents=True, exist_ok=True)
+
+    print(f"Downloading model to: {str(output_dir)}")
+    
+    try:
+        import torch
+        from diffusers import BlipDiffusionPipeline
+        pipe = BlipDiffusionPipeline.from_pretrained("salesforce/blipdiffusion", torch_dtype=torch.bfloat16, device_map="cuda", cache_dir=str(output_dir))
+
+        pipe.save_pretrained(str(output_dir))
+        print("Model downloaded")
+    
+    except Exception as e:
+        print(f"Error occurred during download: {str(e)}")
+
+
+
 
 #main operator for installing
 class DIFFUSEST_OT_InstallDependencies(Operator):
@@ -121,75 +93,48 @@ class DIFFUSEST_OT_InstallDependencies(Operator):
     bl_idname = "diffusest.install_deps"
     bl_label = "Install DiffusionST Dependencies"
     
-    #old background process install: doesn´t work currently
-    # Properties to store state and results from the background thread
-    #install_thread: threading.Thread = None
-    #is_thread_finished: bool = False
+
     install_success: bool = False
-    #install_report: str = ""
-    #_timer =None
-
-    #def execute(self, context):
-    #    if self.install_thread and self.install_thread.is_alive():
-    #        self.report({'WARNING'}, "Installation is already running.")
-    #        return {'CANCELLED'}
-        
-        
-    #    addon_prefs = context.preferences.addons.get(__package__).preferences
-    #    addon_prefs.is_installing = True
-        
-    #    self.is_thread_finished = False
-    #    self.install_success = False
-    #    addon_dir = os.path.dirname(os.path.abspath(__file__))
-        
-    #    target_path = get_user_modules_path()
-
-    #    self.install_thread = threading.Thread(
-    #        target=install_thread_func, 
-    #        args=(addon_dir, self, target_path) # Pass target_path here
-        #)
-    #    self.install_thread.start()
-        
-        #start modal timer
-    #    context.window_manager.modal_handler_add(self)
-    #    self._timer = context.window_manager.event_timer_add(0.1, window=context.window)
-
-    #    return {'RUNNING_MODAL'}
-
-    #def modal(self, context, event):
-    #    if event.type == 'TIMER':
-            
-    #        if self.is_thread_finished:
-    #            addon_prefs = context.preferences.addons.get(__package__).preferences
-                
-    #            context.window_manager.event_timer_remove(self._timer)
-    #            addon_prefs.is_installing = False # Reset UI status
-                
-    #            if self.install_success:
-                    
-    #                self.report({'INFO'}, self.install_report)
-    #                return {'FINISHED'}
-    #            else:
-    #                self.report({'ERROR'}, self.install_report)
-    #                return {'CANCELLED'}
-
-    #    return {'PASS_THROUGH'}
     
-    #def cancel(self, context):
-    #    context.window_manager.event_timer_remove(self._timer)
-    #    context.preferences.addons.get(__package__).preferences.is_installing = False
-    #    self.report({'CANCELLED'}, "Installation cancelled.")
     def execute(self,context):
+        install_success = False
+        self.report({'INFO'}, "Starting Dependency installation. Blender will freeze temporarily.")
         addon_prefs = context.preferences.addons.get(__package__).preferences
-    #check if everything works
-    try:
-        import torch
-        print(torch.__version__, torch.version.cuda, torch.cuda.is_available())
-        print("Dependencies installed.Restart Blender.")
-        install_success=True
-    except:
-        print("Install error occured")
+        #check if everything works
+        install_dependencies()
+        try:
+            import torch
+            #import diffusers
+            print(torch.__version__, torch.version.cuda, torch.cuda.is_available())
+            print("Dependencies installed.Restart Blender.")
+            install_success=True
+        except subprocess.CalledProcessError as e:
+            self.report({'ERROR'}, f"Installation failed: {e.stderr.decode('utf-8')}")
+            install_success = False
+        except Exception as e:
+            self.report({'ERROR'}, f"An unexpected error occurred: {e}")
+            install_success = False
 
+        if install_success:
+            self.report({'INFO'}, "Installation complete. **Please restart Blender** to finalize and use the add-on.")
+            return {'FINISHED'}
+        else:
+            self.report({'ERROR'}, "Installation failed. Check the Console for details.")
+            return {'CANCELLED'}
+    
+class DIFFUSEST_OLT_SetupModel(Operator):
+    """Download and prepare blipdiffusion model."""
+    bl_idname = "diffusest.download_blip"
+    bl_label = "Download blipdiffusion model"
+
+    def execute(self,context):
+        if IS_DEPENDENCIES_AVAILABLE:
+            setupStyleTransferModel()
+            return {'FINISHED'}
+        else:
+            print("Install Dependencies First.")
+            return {'CANCELLED'}
+    
 class DIFFUSEST_OLT_RunGeneration(Operator):
     """Run the image generation process using the diffusion model."""
     bl_idname = "diffusest.run_generation"

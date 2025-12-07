@@ -1,7 +1,7 @@
 import bpy
 from bpy.types import Panel
 from mathutils import *
-from .dependency_check import IS_DEPENDENCIES_AVAILABLE
+from .utils import IS_DEPENDENCIES_AVAILABLE
 
 D = bpy.data
 C = bpy.context

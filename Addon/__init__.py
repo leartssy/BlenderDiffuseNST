@@ -26,7 +26,7 @@ import bpy
 import sys
 import site
 from . import auto_load
-from . import operators, ui_panel, properties, dependency_check
+from . import operators, ui_panel, properties
 
 # Function to get the user's Blender-specific modules path
 def get_user_modules_path():
@@ -37,6 +37,8 @@ if MODULES_PATH not in sys.path:
     sys.path.append(MODULES_PATH)
     # Use site.addsitedir to properly register the directory for package discovery
     site.addsitedir(MODULES_PATH)
+
+
 
 auto_load.init()
 
