@@ -4,6 +4,7 @@ from importlib.util import find_spec
 import sys
 import subprocess
 from pathlib import Path
+import shutil
 from mathutils import *
 from bpy.types import Operator
 from bpy.app.translations import pgettext_iface as _
@@ -17,6 +18,25 @@ C = bpy.context
 #helper functions
 
 def install_dependencies():
+   
+    target_path = get_user_modules_path()
+    #clean out old content if it´s there
+    if os.path.exists(target_path):
+        for item in os.listdir(target_path):
+            path = os.path.join(target_path, item)
+            try:
+                if os.path.isdir(path):
+                    shutil.rmtree(path)
+                else:
+                    os.remove(path)
+            except Exception as e:
+                print(f"Error cleaning up: {path}, {e}")
+    # Ensure the directory exists for the installation
+    if not os.path.exists(target_path):
+        os.makedirs(target_path)
+
+
+
 
     #Basic setup
     import ensurepip
@@ -24,7 +44,7 @@ def install_dependencies():
 
     #make sure target path is in sys path
     #Install new dependencies
-    target_path = get_user_modules_path()
+    
     subprocess.check_call([sys.executable, "-m", "pip", "install", "--upgrade", "pip", "setuptools", "wheel"])
 
     
@@ -34,7 +54,7 @@ def install_dependencies():
     
     #numpy
     subprocess.check_call([sys.executable, "-m", "pip", "uninstall","-y", "numpy"])
-    subprocess.check_call([sys.executable, "-m", "pip", "install", "numpy==2.2.6", "--target",target_path, "--force-reinstall"])
+    subprocess.check_call([sys.executable, "-m", "pip", "install", "numpy==2.2.6", "--target",target_path,"--ignore-installed", "--force-reinstall"])
 
     #install torch -> 2.1.0 is safest version with blender
     #cuda 121 version

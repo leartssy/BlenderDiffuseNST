@@ -3,12 +3,11 @@ import shutil
 import os
 import time
 
-# Default state
-IS_DEPENDENCIES_AVAILABLE = False
 
 def check_dependencies():
     """Attempt to import core dependency and set the global flag."""
     global IS_DEPENDENCIES_AVAILABLE
+    IS_DEPENDENCIES_AVAILABLE = False
 
     try:
         # Check for a core dependencies, correct numpy version and cuda availability
