@@ -2,7 +2,10 @@ import sys
 import shutil
 import os
 import time
+from pathlib import Path
 
+IS_DEPENDENCIES_AVAILABLE = False
+IS_MODEL_DOWNLOADED = False
 
 def check_dependencies():
     """Attempt to import core dependency and set the global flag."""
@@ -33,5 +36,14 @@ def check_dependencies():
         print(f"Diffusion Style Transfer Addon: General error loading libraries: {e}")
         IS_DEPENDENCIES_AVAILABLE = False
 
-# Call the check function immediately on import
+def check_model_downloads():
+    """Check if all needed models are downloaded"""
+    global IS_MODEL_DOWNLOADED
+    IS_MODEL_DOWNLOADED = False
+    model_path = Path.home() / "Blender_AI_Models" / "blipdiffusion_download"
+    if os.path.exists(model_path) and os.path.exists(model_path / "model_index.json"):
+        IS_MODEL_DOWNLOADED = True
+
+# Call the check functions immediately on import
 check_dependencies()
+check_model_downloads()

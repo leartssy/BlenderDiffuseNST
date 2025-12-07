@@ -9,7 +9,7 @@ from mathutils import *
 from bpy.types import Operator
 from bpy.app.translations import pgettext_iface as _
 from .__init__ import get_user_modules_path
-from .utils import IS_DEPENDENCIES_AVAILABLE
+from .utils import IS_DEPENDENCIES_AVAILABLE,check_model_downloads, check_dependencies
 
 D = bpy.data
 C = bpy.context
@@ -75,8 +75,7 @@ def install_dependencies():
     
     #check if installed correctly
     try:
-        import torch
-        import diffusers
+        check_dependencies()
         print("Dependencies installed. Restart Blender.")
     except ImportError:
         print("ImportError: Dependencies not found after installation. Restart Blender.")
@@ -97,11 +96,12 @@ def setupStyleTransferModel():
         import torch
         from diffusers import BlipDiffusionPipeline
         pipe = BlipDiffusionPipeline.from_pretrained("salesforce/blipdiffusion", torch_dtype=torch.bfloat16, cache_dir=str(output_dir)).to("cuda")
-
         pipe.save_pretrained(str(output_dir))
+        check_model_downloads()
         print("Model downloaded")
     
     except Exception as e:
+        check_model_downloads()
         print(f"Error occurred during download: {str(e)}")
 
 
@@ -146,14 +146,20 @@ class DIFFUSEST_OLT_SetupModel(Operator):
     """Download and prepare blipdiffusion model."""
     bl_idname = "diffusest.download_blip"
     bl_label = "Download blipdiffusion model"
-
     def execute(self,context):
         if IS_DEPENDENCIES_AVAILABLE:
-            setupStyleTransferModel()
-            return {'FINISHED'}
-        else:
-            print("Install Dependencies First.")
-            return {'CANCELLED'}
+            self.report({'INFO'}, "Starting Model Download...")
+            try:
+                setupStyleTransferModel()
+                if IS_MODEL_DOWNLOADED:
+                    self.report({'INFO'}, "Model successfully downloaded.")
+                    return {'FINISHED'}
+                else:
+                    self.report({'ERROR'}, "Model download failed.")
+                    return {'CANCELLED'}
+            except Exception as e:
+                self.report({'ERROR'},f"Model download failed: {str(e)}.")
+                return {'CANCELLED'}
     
 class DIFFUSEST_OLT_RunGeneration(Operator):
     """Run the image generation process using the diffusion model."""

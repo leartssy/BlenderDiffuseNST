@@ -3,7 +3,7 @@ import os
 import sys
 from bpy.props import IntProperty, FloatProperty, BoolProperty, StringProperty, EnumProperty
 from bpy.types import AddonPreferences
-from .utils import IS_DEPENDENCIES_AVAILABLE
+from .utils import IS_DEPENDENCIES_AVAILABLE, IS_MODEL_DOWNLOADED
 
 #all the properties used by StyleTransfer
 class DIFFUSEST_Properties(bpy.types.PropertyGroup):
@@ -95,10 +95,19 @@ class DIFFUSEST_AddonPreferences(bpy.types.AddonPreferences):
         #show path information for debugging
         layout.separator()
         #Button for downloading model
-        row = layout.row()
-        row.enabled =True
-        row.operator("diffusest.download_blip", text = "Download Blipdiffusion Model.", icon='IMPORT')
-
+        if IS_DEPENDENCIES_AVAILABLE:
+            if IS_MODEL_DOWNLOADED:
+                row = layout.row()
+                row.enabled =False
+                row.operator("diffusest.download_blip", text = "Blipdiffusion Model already downloaded.", icon='CHECKMARK')
+            else:
+                row = layout.row()
+                row.enabled =True
+                row.operator("diffusest.download_blip", text = "Download Blipdiffusion Model.", icon='IMPORT')
+        else:
+            row = layout.row()
+            row.enabled = False
+            row.operator("diffusest.download_blip", text = "Install Dependencies first.", icon='IMPORT')
         #information
         layout.separator()
         layout.label(text=f"Blender Python Executable: {sys.executable}", icon='INFO')
