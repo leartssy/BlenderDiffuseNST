@@ -1,2 +1,4 @@
 echo "textile/" >> .gitignore
+echo "models/" >> .gitignore
 echo "blipdiffusion/" >> .gitignore
+echo "Addon/textile/models/textile.pth" >> .gitignore

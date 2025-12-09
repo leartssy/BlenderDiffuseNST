@@ -23,30 +23,50 @@ class DIFFUSEST_Properties(bpy.types.PropertyGroup):
     content_folder: StringProperty(
         name="Content Folder",
         description="Folder containing content images",
-        default="",
+        default=r"C:\Users\leaes\Documents\Studium\7. Semester\Bachelor\Bachelor Thesis\IndividualProject\Images\TrainingImages\ContentImages\Testing_Content",
         subtype='DIR_PATH'
     ) 
 
     style_folder:StringProperty(
         name="Style Folder",
         description="Folder containing style images",
-        default="",
+        default=r"C:\Users\leaes\Documents\Studium\7. Semester\Bachelor\Bachelor Thesis\IndividualProject\Images\TrainingImages\StyleImages\Testing_Styles",
         subtype='DIR_PATH'
     ) 
 
     output_folder:StringProperty(
         name="Output Folder",
         description="Folder for output images",
-        default="",
+        default=r"C:\Users\leaes\Documents\Studium\7. Semester\Bachelor\Bachelor Thesis\IndividualProject\Images\TrainingImages\Resulting Pictures\BlenderDiffuse\Test1",
         subtype='DIR_PATH'
     ) 
 
     strength:FloatProperty(
-        name="Style Strength",
+        name="Content Strength",
         description="Stylization strength (0.0 to 1.0)",
         default=0.8,
         min=0.0,
         max=1.0,
+        precision=2,
+        subtype='FACTOR',
+    )
+
+    tileability_strength:FloatProperty(
+        name="Tileability Strength",
+        description="Tileability strength (0.0 to 1.0)",
+        default=0.0,
+        min=0.0,
+        max=1.0,
+        precision=2,
+        subtype='FACTOR',
+    )
+
+    guidance_scale:FloatProperty(
+        name="Guidance Scale",
+        description="Guidance Scale (0.0 to 10.0)",
+        default=7.5,
+        min=0.0,
+        max=10.0,
         precision=2,
         subtype='FACTOR',
     )
@@ -120,12 +140,12 @@ class DIFFUSEST_AddonPreferences(bpy.types.AddonPreferences):
         if IS_DEPENDENCIES_AVAILABLE and IS_MODEL_DOWNLOADED:
             if IS_REPO_DOWNLOADED:
                 row = layout.row()
-                row.enabled =False
-                row.operator("diffusest.download_repo", text = "Repository already downloaded.", icon='CHECKMARK')
+                row.enabled =True
+                row.operator("diffusest.download_repo", text = "Repository already downloaded, reload?", icon='CHECKMARK')
             else:
                 row = layout.row()
                 row.enabled =True
-                row.operator("diffusest.download_repo", text = "Download DiffuseST Repository.", icon='IMPORT')
+                row.operator("diffusest.download_repo", text = "Download DiffuseST Repository and textile.", icon='IMPORT')
         else:
             row = layout.row()
             row.enabled = False

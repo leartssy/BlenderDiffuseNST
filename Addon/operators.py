@@ -17,21 +17,31 @@ C = bpy.context
 
 
 #helper functions
+def show_dependencies():
+    command_list = [sys.executable, "-m", "pipdeptree"]
+    subprocess.check_call([sys.executable, "-m", "pip", "install", "pipdeptree", "ipython"])
+    from IPython import display
+    display.clear_output()
+    addon_env = os.environ.copy()
+    addon_env['PYTHONPATH'] = MODULES_PATH
+    result = subprocess.run(command_list,env=addon_env,capture_output=True, text=True, check=True)
+    print("--- Dependency Tree ---")
+    print(result.stdout)
 
 def install_dependencies():
-   
+    
     target_path = get_user_modules_path()
     #clean out old content if it´s there
-    if os.path.exists(target_path):
-        for item in os.listdir(target_path):
-            path = os.path.join(target_path, item)
-            try:
-                if os.path.isdir(path):
-                    shutil.rmtree(path)
-                else:
-                    os.remove(path)
-            except Exception as e:
-                print(f"Error cleaning up: {path}, {e}")
+    #if os.path.exists(target_path):
+     #   for item in os.listdir(target_path):
+      #      path = os.path.join(target_path, item)
+       #     try:
+        #        if os.path.isdir(path):
+         #           shutil.rmtree(path)
+          #      else:
+           #         os.remove(path)
+            #except Exception as e:
+             #   print(f"Error cleaning up: {path}, {e}")
     # Ensure the directory exists for the installation
     if not os.path.exists(target_path):
         os.makedirs(target_path)
@@ -45,8 +55,8 @@ def install_dependencies():
 
     #make sure target path is in sys path
     #Install new dependencies
-    
     subprocess.check_call([sys.executable, "-m", "pip", "install", "--upgrade", "pip", "setuptools", "wheel"])
+    #subprocess.check_call([sys.executable, "-m", "pip", "install", "numpy"])
 
     
     if target_path not in sys.path:
@@ -55,14 +65,14 @@ def install_dependencies():
     
     #numpy
     subprocess.check_call([sys.executable, "-m", "pip", "uninstall","-y", "numpy"])
-    subprocess.check_call([sys.executable, "-m", "pip", "install", "numpy==2.2.6", "--target",target_path,"--ignore-installed", "--force-reinstall"])
+    subprocess.check_call([sys.executable, "-m", "pip", "install","--upgrade", "numpy==2.2.6", "--target",target_path,"--ignore-installed", "--force-reinstall"])
 
     #install torch -> 2.1.0 is safest version with blender
     #cuda 121 version
     subprocess.check_call([
         sys.executable, "-m", "pip", "install",
-        "torch==2.1.0", "torchvision==0.16.0", "torchaudio==2.1.0",
-        "--index-url", "https://download.pytorch.org/whl/cu121","--target", target_path, "--no-deps", "--ignore-installed","--force-reinstall"
+        "torch==2.5.1", "torchvision", "torchaudio",
+        "--index-url", "https://download.pytorch.org/whl/cu121","--target", target_path, "--no-deps", "--ignore-installed","--upgrade"
     ])
 
     #install other stuff from requirements
@@ -73,7 +83,7 @@ def install_dependencies():
     subprocess.check_call([
         sys.executable, "-m", "pip", "install", "-r", req_path,"--target", target_path, "--ignore-installed"
     ])
-    
+    show_dependencies()
     #check if installed correctly
     try:
         check_dependencies()
@@ -96,6 +106,7 @@ def setupStyleTransferModel():
     
     try:
         import torch
+        import diffusers
         from diffusers import BlipDiffusionPipeline
         pipe = BlipDiffusionPipeline.from_pretrained("salesforce/blipdiffusion", torch_dtype=torch.bfloat16, cache_dir=str(output_dir)).to("cuda")
         pipe.save_pretrained(str(output_dir))
@@ -120,13 +131,20 @@ def download_DiffuseST_repo():
             "git","clone",repo_url
         ], cwd=str(parent_dir))
         
-        check_repo_downloads()
         print(f"Repository successfully cloned to {output_dir}")
     except FileNotFoundError:
         print("Git executable not found. Ensure git is installed on operating system!")
     except:
         print("Error occured while cloning")
 
+def install_textile():
+    target_path = get_user_modules_path()
+    subprocess.check_call([
+        sys.executable, "-m", "pip","install", "textile-metric", "--target", target_path, "--ignore-installed", "--no-deps"
+    ])
+    subprocess.check_call([
+        sys.executable, "-m", "pip","install", "progressbar2","python_utils", "--target", target_path, "--ignore-installed", "--no-deps"
+    ])
 
 #main operator for installing
 class DIFFUSEST_OT_InstallDependencies(Operator):
@@ -190,8 +208,11 @@ class DIFFUSEST_OLT_DownloadRepo(Operator):
             self.report({'INFO'}, "Starting Repo Download...")
             try:
                 download_DiffuseST_repo()
+                install_textile()
+                check_repo_downloads()
                 if IS_REPO_DOWNLOADED:
                     self.report({'INFO'}, "Repo successfully downloaded.")
+                    print("Installing Textile")
                     return {'FINISHED'}
                 else:
                     self.report({'ERROR'}, "Repo download failed.")
@@ -217,16 +238,20 @@ class DIFFUSEST_OLT_RunGeneration(Operator):
 
             repo_dir = get_repo_root_path()
             script_path = str(repo_dir / "run.py")
-            model_key = str(get_model_path())
-            content_folder = props.content_folder
-            style_folder = props.style_folder
-            output_folder = props.output_folder
-            strength = props.strength
-            args = ["--content_path", content_folder, "--style_path", style_folder, "--output_dir", output_folder, "--alpha", strength, "--model_key", model_key]
-
+            model_key = str(get_model_path()).replace('\\', '/')
+            content_folder = str(props.content_folder).replace('\\', '/')
+            style_folder = str(props.style_folder).replace('\\', '/')
+            output_folder = str(props.output_folder).replace('\\', '/')
+            strength = str(props.strength)
+            textile_strength = str(props.tileability_strength)
+            guidance_scale = str(props.guidance_scale)
+            args = ["--content_path", content_folder, "--style_path", style_folder, "--output_dir", output_folder, "--alpha", strength, "--model_key", model_key,"--textile_guidance_scale", textile_strength, "--guidance_scale", guidance_scale]
+            #delimiter_space = " "
+            #args = str(delimiter_space.join(args))
+            #print(args)
             try:
                 #run normal batch style transfer
-                run_style_transfer(repo_dir,script_path, str(args))
+                run_style_transfer(repo_dir, script_path, args)
                 self.report(f"Finished style transfer, Find images in {output_folder}")
                 return {'FINISHED'}
             except Exception as e:

@@ -63,6 +63,8 @@ def check_repo_downloads():
     if repo_path.exists():
         IS_REPO_DOWNLOADED = True
 
+
+
 # Call the check functions immediately on import
 check_dependencies()
 check_model_downloads()
