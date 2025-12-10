@@ -126,16 +126,35 @@ def download_DiffuseST_repo():
     parent_dir.mkdir(parents=True, exist_ok=True)
     output_dir = get_repo_root_path()
     print(f"Downloading DiffuseST repo to: {str(parent_dir)}")
-    try:
-        subprocess.check_call([
-            "git","clone",repo_url
-        ], cwd=str(parent_dir))
-        
-        print(f"Repository successfully cloned to {output_dir}")
-    except FileNotFoundError:
-        print("Git executable not found. Ensure git is installed on operating system!")
-    except:
-        print("Error occured while cloning")
+    if output_dir.is_dir():
+        print(f"Repository already exists at: {str(output_dir)}")
+        try:
+                # --- PULL (UPDATE) THE EXISTING REPO ---
+                print("Attempting to pull (update) the repository...")
+                subprocess.check_call([
+                    "git", "pull"
+                ], cwd=str(output_dir)) # CRITICAL: run 'git pull' inside the repo folder
+                print("Repository successfully updated.")
+                return output_dir
+        except subprocess.CalledProcessError:
+            # This handles errors like no network, local uncommitted changes, etc.
+            print("Error occurred while updating (pulling) the repository.")
+            return output_dir # Return the existing path even if update failed
+            
+        except FileNotFoundError:
+            print("Git executable not found. Ensure git is installed on operating system!")
+            return output_dir
+    else:
+        try:
+            subprocess.check_call([
+                "git","clone",repo_url
+            ], cwd=str(parent_dir))
+            
+            print(f"Repository successfully cloned to {output_dir}")
+        except FileNotFoundError:
+            print("Git executable not found. Ensure git is installed on operating system!")
+        except:
+            print("Error occured while cloning")
 
 def install_textile():
     target_path = get_user_modules_path()
@@ -243,9 +262,11 @@ class DIFFUSEST_OLT_RunGeneration(Operator):
             style_folder = str(props.style_folder).replace('\\', '/')
             output_folder = str(props.output_folder).replace('\\', '/')
             strength = str(props.strength)
-            textile_strength = str(props.tileability_strength)
+            #textile_strength = str(props.tileability_strength)
+            is_tileable = str(props.is_tileable)
+            print (f"{is_tileable}")
             guidance_scale = str(props.guidance_scale)
-            args = ["--content_path", content_folder, "--style_path", style_folder, "--output_dir", output_folder, "--alpha", strength, "--model_key", model_key,"--textile_guidance_scale", textile_strength, "--guidance_scale", guidance_scale]
+            args = ["--content_path", content_folder, "--style_path", style_folder, "--output_dir", output_folder, "--alpha", strength, "--model_key", model_key, "--guidance_scale", guidance_scale,"--is_tileable",is_tileable]
             #delimiter_space = " "
             #args = str(delimiter_space.join(args))
             #print(args)

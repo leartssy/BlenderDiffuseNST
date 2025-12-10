@@ -51,15 +51,21 @@ class DIFFUSEST_Properties(bpy.types.PropertyGroup):
         subtype='FACTOR',
     )
 
-    tileability_strength:FloatProperty(
-        name="Tileability Strength",
-        description="Tileability strength (0.0 to 1.0)",
-        default=0.0,
-        min=0.0,
-        max=1.0,
-        precision=2,
-        subtype='FACTOR',
-    )
+    #was used for testing textile
+    #tileability_strength:FloatProperty(
+        #name="Tileability Strength",
+        #description="Tileability strength (0.0 to 1.0)",
+        #default=0.0,
+        #min=0.0,
+        #max=1.0,
+        #precision=2,
+        #subtype='FACTOR',
+    #)
+    is_tileable: BoolProperty(
+        name="Tileable",
+        description="Tileable Option",
+        default=True,
+        )
 
     guidance_scale:FloatProperty(
         name="Guidance Scale",
