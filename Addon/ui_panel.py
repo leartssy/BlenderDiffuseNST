@@ -46,6 +46,11 @@ class DIFFUSEST_PT_MainPanel(Panel):
         box.prop(props, "ddim_steps")
         box.prop(props, "seed")
 
+        box = layout.box()
+        box.label(text="Seam blending options", icon='SETTINGS')
+        box.prop(props,"gap")
+        box.prop(props,"blur")
+
         layout.separator()
         row = layout.row()
 

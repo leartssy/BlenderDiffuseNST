@@ -92,6 +92,24 @@ class DIFFUSEST_Properties(bpy.types.PropertyGroup):
         min=-1,
     )
 
+#seam blending options
+    gap:FloatProperty(
+        name="Seamblend width",
+        description="How wide the blending of seam should be (in px, or in percentage if <1)",
+        default=0.12,
+        min=0.05,
+        max=100,
+    )
+
+    blur:IntProperty(
+        name="Seam Blur",
+        description="Blur strength at seam, only use odd numbers",
+        default=3,
+        min=1,
+        max=9,
+        step=2,
+    )
+
 
 #addon Requirements in Addon Preferences -> button for installing
 class DIFFUSEST_AddonPreferences(bpy.types.AddonPreferences):
