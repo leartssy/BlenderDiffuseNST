@@ -96,7 +96,7 @@ class DIFFUSEST_Properties(bpy.types.PropertyGroup):
     gap:FloatProperty(
         name="Seamblend width",
         description="How wide the blending of seam should be (in px, or in percentage if <1)",
-        default=0.12,
+        default=0.21,
         min=0.05,
         max=100,
     )
@@ -104,7 +104,7 @@ class DIFFUSEST_Properties(bpy.types.PropertyGroup):
     blur:IntProperty(
         name="Seam Blur",
         description="Blur strength at seam, only use odd numbers",
-        default=3,
+        default=7,
         min=1,
         max=9,
         step=2,
