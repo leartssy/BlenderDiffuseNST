@@ -268,7 +268,7 @@ class DIFFUSEST_OLT_RunGeneration(Operator):
             guidance_scale = str(props.guidance_scale)
             blur = str(props.blur)
             gap = str(props.gap)
-            args = ["--content_path", content_folder, "--style_path", style_folder, "--output_dir", output_folder, "--alpha", strength, "--model_key", model_key, "--guidance_scale", guidance_scale,"--is_tileable",is_tileable, "--gap", gap, "--blur", blur]
+            args = ["--content_path", content_folder, "--style_path", style_folder, "--output_dir", output_folder, "--alpha", strength, "--model_key", model_key, "--guidance_scale", guidance_scale,"--is_tileable",is_tileable, "--gap", gap, "--blur", blur, "--min_ratio","0.1"]
             #delimiter_space = " "
             #args = str(delimiter_space.join(args))
             #print(args)
