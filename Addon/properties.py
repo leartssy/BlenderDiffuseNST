@@ -110,11 +110,11 @@ class DIFFUSEST_Properties(bpy.types.PropertyGroup):
         step=2,
     )
 
-    only_horizontal:BoolProperty(
-        name="Disable Vertical Tiling",
-        description="Option only tile horizontally (e.g. for skyboxes)",
-        default=False,
-    )
+    #only_horizontal:BoolProperty(
+       # name="Disable Vertical Tiling",
+        #description="Option only tile horizontally (e.g. for skyboxes)",
+       # default=False,
+   # )
 
 
 #addon Requirements in Addon Preferences -> button for installing

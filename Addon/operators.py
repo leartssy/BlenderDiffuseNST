@@ -264,12 +264,12 @@ class DIFFUSEST_OLT_RunGeneration(Operator):
             strength = str(props.strength)
             #textile_strength = str(props.tileability_strength)
             is_tileable = str(props.is_tileable)
-            only_horizontal = str(props.only_horizontal)
+            #only_horizontal = str(props.only_horizontal)
             print (f"{is_tileable}")
             guidance_scale = str(props.guidance_scale)
             blur = str(props.blur)
             gap = str(props.gap)
-            args = ["--content_path", content_folder, "--style_path", style_folder, "--output_dir", output_folder, "--alpha", strength, "--model_key", model_key, "--guidance_scale", guidance_scale,"--is_tileable",is_tileable, "--gap", gap, "--blur", blur, "--min_ratio","0.05", "--only_horizontal_tiling", only_horizontal]
+            args = ["--content_path", content_folder, "--style_path", style_folder, "--output_dir", output_folder, "--alpha", strength, "--model_key", model_key, "--guidance_scale", guidance_scale,"--is_tileable",is_tileable, "--gap", gap, "--blur", blur, "--min_ratio","0.05"]
             #delimiter_space = " "
             #args = str(delimiter_space.join(args))
             #print(args)
