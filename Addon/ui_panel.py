@@ -50,6 +50,7 @@ class DIFFUSEST_PT_MainPanel(Panel):
         box.label(text="Seam blending options", icon='SETTINGS')
         box.prop(props,"gap")
         box.prop(props,"blur")
+        box.prop(props,"only_horizontal")
 
         layout.separator()
         row = layout.row()
