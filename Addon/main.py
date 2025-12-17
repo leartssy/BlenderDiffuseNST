@@ -57,3 +57,17 @@ def run_style_transfer(repo_dir:str,script_path:str, args:str):
         raise
 
 
+
+def run_normal_generation():
+    import torch
+    import diffusers
+    from diffusers import DiffusionPipeline
+    from diffusers.utils import load_image
+
+    pipe_normals= DiffusionPipeline.from_pretrained("prs-eth/marigold-normals-v1-1", dtype=torch.bfloat16).to("cuda")
+
+    output = pipe_normals(result_image)
+
+    #save
+    normal_map = pipe_normals.image_processor.visualize_normals(output.prediction)
+    normal_map[0].save("output_normal.png")

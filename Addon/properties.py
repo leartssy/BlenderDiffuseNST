@@ -66,6 +66,12 @@ class DIFFUSEST_Properties(bpy.types.PropertyGroup):
         description="Tileable Option",
         default=True,
         )
+    
+    gen_normal: BoolProperty(
+        name="Normalmap",
+        description="Generate a normal map",
+        default=True,
+        )
 
     guidance_scale:FloatProperty(
         name="Guidance Scale",

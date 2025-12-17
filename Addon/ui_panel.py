@@ -52,6 +52,10 @@ class DIFFUSEST_PT_MainPanel(Panel):
         box.prop(props,"blur")
         #box.prop(props,"only_horizontal")
 
+        box = layout.box()
+        box.label(text="Normal Map Generation", icon='SETTINGS')
+        box.prop(props,"gen_normal")
+
         layout.separator()
         row = layout.row()
 
