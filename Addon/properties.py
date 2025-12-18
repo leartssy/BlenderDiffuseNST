@@ -79,7 +79,7 @@ class DIFFUSEST_Properties(bpy.types.PropertyGroup):
         default=2.0,
         min=0.0,
         max=5.0,
-        precision=0.01,
+        precision=2,
         subtype='FACTOR',
     )
 
