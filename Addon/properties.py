@@ -72,6 +72,16 @@ class DIFFUSEST_Properties(bpy.types.PropertyGroup):
         description="Generate a normal map",
         default=True,
         )
+    
+    normal_strength:FloatProperty(
+        name="Normal Strength",
+        description="Normal Strength (0.0 to 5.0)",
+        default=2.0,
+        min=0.0,
+        max=5.0,
+        precision=0.01,
+        subtype='FACTOR',
+    )
 
     guidance_scale:FloatProperty(
         name="Guidance Scale",

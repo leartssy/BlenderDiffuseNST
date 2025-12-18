@@ -55,6 +55,7 @@ class DIFFUSEST_PT_MainPanel(Panel):
         box = layout.box()
         box.label(text="Normal Map Generation", icon='SETTINGS')
         box.prop(props,"gen_normal")
+        box.prop(props,"normal_strength")
 
         layout.separator()
         row = layout.row()
