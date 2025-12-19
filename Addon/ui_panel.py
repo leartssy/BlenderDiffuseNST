@@ -31,6 +31,7 @@ class DIFFUSEST_PT_MainPanel(Panel):
         else:
             is_ready = False
 
+        is_running = props.is_running
         
         box = layout.box()
         box.label(text="Image Inputs", icon='FILE_FOLDER')
@@ -61,9 +62,16 @@ class DIFFUSEST_PT_MainPanel(Panel):
         row = layout.row()
 
         # Check dependency status and set button properties
-        row.enabled = is_ready # Enable/disable the row
-        row.operator("diffusest.run_generation", text="Run Style Transfer", icon='NODE')
-        if not is_ready:
+        if is_ready and not is_running:
+            row.enabled = True # Enable/disable the row
+            row.operator("diffusest.run_generation", text="Run Style Transfer", icon='NODE')
+        elif not is_ready:
             row.label(text="Install all requirements in Addon Preferences", icon='INFO')
             # Show the Run button, which is disabled by the row.enabled flag
-            
+        else:
+            row.label(text="Processing...", icon = 'TIME')
+        #progress bar box
+        col = layout.column(align = True)
+        sub = col.row()
+        sub.enabled = False
+        sub.prop(props, "progress", text= "Generation Progress")

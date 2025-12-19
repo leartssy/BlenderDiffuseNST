@@ -73,6 +73,11 @@ class DIFFUSEST_Properties(bpy.types.PropertyGroup):
         default=True,
         )
     
+    is_running: BoolProperty(
+        name="Is Running",
+        default=False,
+        )
+    
     normal_strength:FloatProperty(
         name="Normal Strength",
         description="Normal Strength (0.0 to 5.0)",
@@ -131,6 +136,13 @@ class DIFFUSEST_Properties(bpy.types.PropertyGroup):
         #description="Option only tile horizontally (e.g. for skyboxes)",
        # default=False,
    # )
+    progress:FloatProperty(
+        name="Progress",
+        subtype='PERCENTAGE',
+        min=0.0,
+        max=100.0,
+        precision=0,
+    )
 
 
 #addon Requirements in Addon Preferences -> button for installing

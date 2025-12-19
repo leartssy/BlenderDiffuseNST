@@ -284,12 +284,16 @@ class DIFFUSEST_OLT_RunGeneration(Operator):
                 #newly generated images
                 current_session_results = [f for f in all_files if ("_raw" in f.name or "_tiled" in f.name) and f.stat().st_mtime > (self._session_start_time - 0.5)]
                 current_count= len(current_session_results)
+                #update the percentage progressbar in ui panel
+                if self._total_expected > 0:
+                    percent = (current_count / self._total_expected) * 100
+                    props.progress = percent
                 #update progress bar
                 context.window_manager.progress_update(current_count)
                 context.workspace.status_text_set(
                     f"Generating Style Transfer: {current_count}/{self._total_expected}"
                 )
-
+                context.area.tag_redraw()
                     
                 #if new file appeared, display it
                 if current_session_results:
@@ -319,7 +323,7 @@ class DIFFUSEST_OLT_RunGeneration(Operator):
         else:
             #get all needed properties
             props = context.scene.diffusest_props
-
+            props.is_running = True
             repo_dir = get_repo_root_path()
             script_path = str(repo_dir / "run.py")
             model_key = str(get_model_path()).replace('\\', '/')
@@ -370,6 +374,7 @@ class DIFFUSEST_OLT_RunGeneration(Operator):
             #########
             try:
                 #run normal batch style transfer
+                self.report({'INFO'},"Loading style transfer model...")
                 self._process = run_style_transfer(repo_dir, script_path, args)
             except Exception as e:
                 context.window_manager.progress_end()
@@ -382,6 +387,7 @@ class DIFFUSEST_OLT_RunGeneration(Operator):
             
     
     def cancel(self,context):
+        context.scene.diffusest_props.is_running = False
         context.window_manager.progress_end()
         context.workspace.status_text_set(None)
         if self._timer:
