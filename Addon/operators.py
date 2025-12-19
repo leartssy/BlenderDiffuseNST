@@ -261,13 +261,17 @@ class DIFFUSEST_OLT_RunGeneration(Operator):
 
     _timer = None
     _process = None
-    _last_checked_count = 0
+    _total_expected = 1
+    _session_start_time = 0.0
+    _last_display_time = 0.0
 
     def modal(self,context,event):
         #check if process is still running
         if self._process is None or self._process.poll() is not None:
-            self.report({'INFO'}, "Style Transfer Finished.")
+            #clear progress bar
             self.cancel(context)
+            self.report({'INFO'}, "Style Transfer Finished.")
+            
             return {'FINISHED'}
         
         #on every timer tick
@@ -276,20 +280,38 @@ class DIFFUSEST_OLT_RunGeneration(Operator):
             output_path = Path(bpy.path.abspath(props.output_folder))
 
             if output_path.exists():
-                current_files = list(output_path.glob('*.png'))
-                #if new file appeared, display it
-                if len(current_files) > self._last_checked_count:
-                    image_files = [f for f in current_files if ("_raw" in f.name or "_tiled" in f.name and not "_normal" in f.name)]
+                all_files = list(output_path.glob('*.png'))
+                #newly generated images
+                current_session_results = [f for f in all_files if ("_raw" in f.name or "_tiled" in f.name) and f.stat().st_mtime > (self._session_start_time - 0.5)]
+                current_count= len(current_session_results)
+                #update progress bar
+                context.window_manager.progress_update(current_count)
+                context.workspace.status_text_set(
+                    f"Generating Style Transfer: {current_count}/{self._total_expected}"
+                )
+
                     
-                    if image_files:
-                        newest_file = max(image_files, key=lambda f: f.stat().st_mtime)
+                #if new file appeared, display it
+                if current_session_results:
+                    #get newest file and its time
+                    newest_file = max(current_session_results, key=lambda f: f.stat().st_mtime)
+                    newest_time = newest_file.stat().st_mtime
+
+                    if newest_time > self._last_display_time:
                         display_image(str(newest_file))
 
-                    self._last_checked_count = len(current_files)
-                    self.report({'INFO'}, f"Generated: {newest_file.name}")
+                        self._last_display_time = newest_time
+                        self.report({'INFO'}, f"Updated: {newest_file.name}")
+
+                #Force UI to redraw
+                for area in context.screen.areas:
+                    if area.type in {'STATUSBAR','PROPERTIES','IMAGE_EDITOR'}:
+                        area.tag_redraw()
+        
         return {'PASS_THROUGH'}
 
     def execute(self, context):
+        import time
         if not hasattr(context.scene, 'diffusest_props'):
             self.report({'ERROR'}, "Add-on properties failed to load.")
             return {'CANCELLED'}
@@ -318,23 +340,50 @@ class DIFFUSEST_OLT_RunGeneration(Operator):
             #delimiter_space = " "
             #args = str(delimiter_space.join(args))
             #print(args)
+
+            #### progress bar ####
+            #total files to process (content_files *styleFiles)
+            content_path = Path(bpy.path.abspath(props.content_folder))
+            style_path = Path(bpy.path.abspath(props.style_folder))
+            exts = ('.png', '.jpg', '.jpeg', '.webp')
+            #count them
+            if content_path.is_file():
+                content_count = 1
+            else:
+                content_count = len([f for f in content_path.glob('*') if f.suffix.lower() in exts])
+            
+            if style_path.is_file():
+                style_count = 1
+            else:
+                style_count = len([f for f in style_path.glob('*') if f.suffix.lower() in exts])
+
+            if props.gen_normal:
+                self._total_expected = content_count * style_count * 2 #double the images because need to generate normal maps
+            else:
+                self._total_expected = content_count * style_count
+            
+            now = time.time()
+            self._session_start_time = now
+            self._last_display_time = now
+            context.window_manager.progress_begin(0, self._total_expected) 
+
+            #########
             try:
                 #run normal batch style transfer
                 self._process = run_style_transfer(repo_dir, script_path, args)
             except Exception as e:
+                context.window_manager.progress_end()
                 self.report({'ERROR'}, f"Failed to start: {e}")
                 return {'CANCELLED'}
-        
-            #display recent generated image
-            output_dir = Path(bpy.path.abspath(props.output_folder))
-            self._last_checked_count = len(list(output_dir.glob('*.png'))) if output_dir.exists() else 0
-            
             #start modal timer
             self._timer = context.window_manager.event_timer_add(0.5, window=context.window)
             context.window_manager.modal_handler_add(self)
             return {'RUNNING_MODAL'}
+            
     
     def cancel(self,context):
+        context.window_manager.progress_end()
+        context.workspace.status_text_set(None)
         if self._timer:
             context.window_manager.event_timer_remove(self._timer)
         
