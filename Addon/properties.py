@@ -24,14 +24,14 @@ class DIFFUSEST_Properties(bpy.types.PropertyGroup):
         name="Content Folder",
         description="Folder containing content images",
         default=r"C:\Users\leaes\Documents\Studium\7. Semester\Bachelor\Bachelor Thesis\IndividualProject\Images\TrainingImages\ContentImages\Testing_Content",
-        subtype='DIR_PATH'
+        subtype='FILE_PATH'
     ) 
 
     style_folder:StringProperty(
         name="Style Folder",
         description="Folder containing style images",
         default=r"C:\Users\leaes\Documents\Studium\7. Semester\Bachelor\Bachelor Thesis\IndividualProject\Images\TrainingImages\StyleImages\Testing_Styles",
-        subtype='DIR_PATH'
+        subtype='FILE_PATH'
     ) 
 
     output_folder:StringProperty(
@@ -86,8 +86,8 @@ class DIFFUSEST_Properties(bpy.types.PropertyGroup):
     guidance_scale:FloatProperty(
         name="Guidance Scale",
         description="Guidance Scale (0.0 to 10.0)",
-        default=7.5,
-        min=0.0,
+        default=5.0,
+        min=1.1,
         max=10.0,
         precision=2,
         subtype='FACTOR',

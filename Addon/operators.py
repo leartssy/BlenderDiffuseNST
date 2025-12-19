@@ -165,6 +165,19 @@ def install_textile():
         sys.executable, "-m", "pip","install", "progressbar2","python_utils", "--target", target_path, "--ignore-installed", "--no-deps"
     ])
 
+def display_image(image_path):
+    #absolute path
+    abs_path = os.path.abspath(image_path)
+    bpy_image = bpy.data.images.load(abs_path, check_existing=True)
+    bpy_image.reload()
+    #find open UV/Image editor area
+    for area in bpy.context.screen.areas:
+        if area.type == 'IMAGE_EDITOR':
+            area.spaces.active.image = bpy_image
+            #update the view
+            area.tag_redraw()
+            return
+
 #main operator for installing
 class DIFFUSEST_OT_InstallDependencies(Operator):
     """Installs required Python packages using Blender's Python environment"""
@@ -278,6 +291,13 @@ class DIFFUSEST_OLT_RunGeneration(Operator):
             try:
                 #run normal batch style transfer
                 run_style_transfer(repo_dir, script_path, args)
+                #display recent generated image
+                output_dir = Path(bpy.path.abspath(props.output_folder))
+                image_files = [f for f in output_dir.glob('*') if "_raw" in f.name or "_tiled" in f.name and not "_normal" in f.name]
+                if image_files:
+                    newest_image = max(image_files, key=lambda f: f.stat().st_mtime)
+                    display_image(str(newest_image))
+
                 self.report(f"Finished style transfer, Find images in {output_folder}")
                 return {'FINISHED'}
             except Exception as e:

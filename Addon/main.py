@@ -15,22 +15,22 @@ def run_style_transfer(repo_dir:str,script_path:str, args:str):
     import progressbar
     
 
-    print("-" * 50)
-    print("RUN.PY SYSTEM PATH CHECK:")
+    #print("-" * 50)
+    #print("RUN.PY SYSTEM PATH CHECK:")
     # Print the entire list of paths where the script is searching for modules
-    for i, path in enumerate(sys.path):
-        print(f"[{i}]: {path}")
+    #for i, path in enumerate(sys.path):
+        #print(f"[{i}]: {path}")
 
     # Now, let's confirm the NumPy version being loaded, or confirm failure location
-    try:
-        print(f"NumPy successfully loaded from: {numpy.__file__}")
-    except AttributeError:
+    #try:
+        #print(f"NumPy successfully loaded from: {numpy.__file__}")
+    #except AttributeError:
         # If NumPy fails, this won't execute, but the traceback will show where it's failing.
-        pass 
-    except Exception as e:
-        print(f"Error during NumPy check: {e}")
+        #pass 
+    #except Exception as e:
+        #print(f"Error during NumPy check: {e}")
 
-    print("-" * 50)
+    #print("-" * 50)
 
     loss_textile = textile.Textile()
     #make sure environment is used in external script
@@ -57,17 +57,3 @@ def run_style_transfer(repo_dir:str,script_path:str, args:str):
         raise
 
 
-
-def run_normal_generation():
-    import torch
-    import diffusers
-    from diffusers import DiffusionPipeline
-    from diffusers.utils import load_image
-
-    pipe_normals= DiffusionPipeline.from_pretrained("prs-eth/marigold-normals-v1-1", dtype=torch.bfloat16).to("cuda")
-
-    output = pipe_normals(result_image)
-
-    #save
-    normal_map = pipe_normals.image_processor.visualize_normals(output.prediction)
-    normal_map[0].save("output_normal.png")
