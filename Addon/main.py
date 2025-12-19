@@ -36,19 +36,20 @@ def run_style_transfer(repo_dir:str,script_path:str, args:str):
     #make sure environment is used in external script
     addon_env = os.environ.copy()
     addon_env['PYTHONPATH'] = MODULES_PATH
+    
     if args is None:
         args =[]
+    
     command = [sys.executable, script_path]
     command.extend(args)
     print(command)
     try:
-        result = subprocess.run(
+        process = subprocess.Popen(
             command,
             cwd=repo_dir,
             env=addon_env,
-            check=True,
             )
-        print("Running style transfer...")
+        return process
     except subprocess.CalledProcessError as e:
         print(f"Error: {e.cmd}, {e.stderr}")
         raise

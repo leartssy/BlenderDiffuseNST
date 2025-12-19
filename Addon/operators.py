@@ -259,6 +259,36 @@ class DIFFUSEST_OLT_RunGeneration(Operator):
     bl_label = "Perform style transfer"
     bl_options = {'REGISTER', 'UNDO'}
 
+    _timer = None
+    _process = None
+    _last_checked_count = 0
+
+    def modal(self,context,event):
+        #check if process is still running
+        if self._process is None or self._process.poll() is not None:
+            self.report({'INFO'}, "Style Transfer Finished.")
+            self.cancel(context)
+            return {'FINISHED'}
+        
+        #on every timer tick
+        if event.type == 'TIMER':
+            props = context.scene.diffusest_props
+            output_path = Path(bpy.path.abspath(props.output_folder))
+
+            if output_path.exists():
+                current_files = list(output_path.glob('*.png'))
+                #if new file appeared, display it
+                if len(current_files) > self._last_checked_count:
+                    image_files = [f for f in current_files if ("_raw" in f.name or "_tiled" in f.name and not "_normal" in f.name)]
+                    
+                    if image_files:
+                        newest_file = max(image_files, key=lambda f: f.stat().st_mtime)
+                        display_image(str(newest_file))
+
+                    self._last_checked_count = len(current_files)
+                    self.report({'INFO'}, f"Generated: {newest_file.name}")
+        return {'PASS_THROUGH'}
+
     def execute(self, context):
         if not hasattr(context.scene, 'diffusest_props'):
             self.report({'ERROR'}, "Add-on properties failed to load.")
@@ -290,16 +320,21 @@ class DIFFUSEST_OLT_RunGeneration(Operator):
             #print(args)
             try:
                 #run normal batch style transfer
-                run_style_transfer(repo_dir, script_path, args)
-                #display recent generated image
-                output_dir = Path(bpy.path.abspath(props.output_folder))
-                image_files = [f for f in output_dir.glob('*') if "_raw" in f.name or "_tiled" in f.name and not "_normal" in f.name]
-                if image_files:
-                    newest_image = max(image_files, key=lambda f: f.stat().st_mtime)
-                    display_image(str(newest_image))
-
-                self.report(f"Finished style transfer, Find images in {output_folder}")
-                return {'FINISHED'}
+                self._process = run_style_transfer(repo_dir, script_path, args)
             except Exception as e:
-                self.report({'ERROR'}, f"Generation failed: Error: {e}")
+                self.report({'ERROR'}, f"Failed to start: {e}")
                 return {'CANCELLED'}
+        
+            #display recent generated image
+            output_dir = Path(bpy.path.abspath(props.output_folder))
+            self._last_checked_count = len(list(output_dir.glob('*.png'))) if output_dir.exists() else 0
+            
+            #start modal timer
+            self._timer = context.window_manager.event_timer_add(0.5, window=context.window)
+            context.window_manager.modal_handler_add(self)
+            return {'RUNNING_MODAL'}
+    
+    def cancel(self,context):
+        if self._timer:
+            context.window_manager.event_timer_remove(self._timer)
+        
