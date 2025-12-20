@@ -42,6 +42,7 @@ class DIFFUSEST_PT_MainPanel(Panel):
         box = layout.box()
         box.label(text="Generation Settings", icon='SETTINGS')
         box.prop(props, "strength")
+        box.prop(props, "color_strength")
         box.prop(props, "is_tileable")
         box.prop(props, "guidance_scale")
         box.prop(props, "ddim_steps")
