@@ -65,14 +65,14 @@ def install_dependencies():
     
     #numpy
     subprocess.check_call([sys.executable, "-m", "pip", "uninstall","-y", "numpy"])
-    subprocess.check_call([sys.executable, "-m", "pip", "install","--upgrade", "numpy==2.2.6", "--target",target_path,"--ignore-installed", "--force-reinstall"])
+    subprocess.check_call([sys.executable, "-m", "pip", "install", "numpy==2.2.6", "--target",target_path])
 
     #install torch -> 2.1.0 is safest version with blender
     #cuda 121 version
     subprocess.check_call([
         sys.executable, "-m", "pip", "install",
         "torch==2.5.1", "torchvision", "torchaudio",
-        "--index-url", "https://download.pytorch.org/whl/cu121","--target", target_path, "--no-deps", "--ignore-installed","--upgrade"
+        "--index-url", "https://download.pytorch.org/whl/cu121","--target", target_path, "--no-deps", "--ignore-installed"
     ])
 
     #install other stuff from requirements
@@ -177,6 +177,11 @@ def display_image(image_path):
             #update the view
             area.tag_redraw()
             return
+def install_colormatch():
+    target_path = get_user_modules_path()
+    subprocess.check_call([
+        sys.executable, "-m", "pip","install", "color-matcher", "--target", target_path, "--no-deps"
+    ])
 
 #main operator for installing
 class DIFFUSEST_OT_InstallDependencies(Operator):
@@ -211,6 +216,8 @@ class DIFFUSEST_OT_InstallDependencies(Operator):
         else:
             self.report({'ERROR'}, "Installation failed. Check the Console for details.")
             return {'CANCELLED'}
+        
+        
     
 class DIFFUSEST_OLT_SetupModel(Operator):
     """Download and prepare blipdiffusion model."""
@@ -241,6 +248,7 @@ class DIFFUSEST_OLT_DownloadRepo(Operator):
             try:
                 download_DiffuseST_repo()
                 install_textile()
+                install_colormatch()
                 check_repo_downloads()
                 if IS_REPO_DOWNLOADED:
                     self.report({'INFO'}, "Repo successfully downloaded.")
@@ -295,7 +303,7 @@ class DIFFUSEST_OLT_RunGeneration(Operator):
                 )
                 context.area.tag_redraw()
                     
-                #if new file appeared, display it
+                #if new file appeared, display it, do color transfer if needed
                 if current_session_results:
                     #get newest file and its time
                     newest_file = max(current_session_results, key=lambda f: f.stat().st_mtime)
@@ -303,7 +311,7 @@ class DIFFUSEST_OLT_RunGeneration(Operator):
 
                     if newest_time > self._last_display_time:
                         display_image(str(newest_file))
-
+                        
                         self._last_display_time = newest_time
                         self.report({'INFO'}, f"Updated: {newest_file.name}")
 

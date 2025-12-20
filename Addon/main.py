@@ -39,7 +39,6 @@ def run_style_transfer(repo_dir:str,script_path:str, args:str):
     
     if args is None:
         args =[]
-    
     command = [sys.executable, script_path]
     command.extend(args)
     print(command)
@@ -56,5 +55,7 @@ def run_style_transfer(repo_dir:str,script_path:str, args:str):
     except Exception as e:
         print(f"Unexpected Error: {e}")
         raise
+    
+
 
 
