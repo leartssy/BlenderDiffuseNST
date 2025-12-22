@@ -76,3 +76,8 @@ class DIFFUSEST_PT_MainPanel(Panel):
         sub = col.row()
         sub.enabled = False
         sub.prop(props, "progress", text= "Generation Progress")
+
+        #preview option
+        box = layout.box()
+        box.label(text="Preview displayed Texture", icon='IMAGE')
+        box.operator("diffusest.preview",text="Preview displayed texture", icon='IMAGE')
