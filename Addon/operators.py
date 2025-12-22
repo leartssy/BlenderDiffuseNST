@@ -165,7 +165,7 @@ def install_textile():
         sys.executable, "-m", "pip","install", "progressbar2","python_utils", "--target", target_path, "--ignore-installed", "--no-deps"
     ])
 
-def display_image(image_path):
+def display_image(image_path, is_tileable):
     #absolute path
     abs_path = os.path.abspath(image_path)
     bpy_image = bpy.data.images.load(abs_path, check_existing=True)
@@ -174,6 +174,7 @@ def display_image(image_path):
     for area in bpy.context.screen.areas:
         if area.type == 'IMAGE_EDITOR':
             area.spaces.active.image = bpy_image
+
             #update the view
             area.tag_redraw()
             return
@@ -395,6 +396,7 @@ class DIFFUSEST_OLT_RunGeneration(Operator):
         if event.type == 'TIMER':
             props = context.scene.diffusest_props
             output_path = Path(bpy.path.abspath(props.output_folder))
+            is_tileable = props.is_tileable
 
             if output_path.exists():
                 all_files = list(output_path.glob('*.png'))
@@ -419,7 +421,7 @@ class DIFFUSEST_OLT_RunGeneration(Operator):
                     newest_time = newest_file.stat().st_mtime
 
                     if newest_time > self._last_display_time:
-                        display_image(str(newest_file))
+                        display_image(str(newest_file),is_tileable)
                         
                         self._last_display_time = newest_time
                         self.report({'INFO'}, f"Updated: {newest_file.name}")

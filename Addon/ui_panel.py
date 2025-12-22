@@ -79,6 +79,7 @@ class DIFFUSEST_PT_MainPanel(Panel):
 
         #preview option
         box = layout.box()
-        box.label(text="Preview displayed Texture", icon='IMAGE')
+        box.label(text="Preview options", icon='SETTINGS')
+        box.prop(props, "show_tiling", text="Preview 2D Tiling", icon = 'TEXTURE_DATA', toggle=True)
         box.prop(props, "prev_normal")
         box.operator("diffusest.preview",text="Preview displayed texture", icon='IMAGE')

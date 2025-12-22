@@ -5,6 +5,14 @@ from bpy.props import IntProperty, FloatProperty, BoolProperty, StringProperty, 
 from bpy.types import AddonPreferences
 from .utils import IS_DEPENDENCIES_AVAILABLE, IS_MODEL_DOWNLOADED, IS_REPO_DOWNLOADED
 
+def update_tiling_preview(self,context):
+    """Toggles Tiling Preview"""
+    for window in bpy.context.window_manager.windows:
+        for area in context.screen.areas:
+            if area.type == 'IMAGE_EDITOR':
+                area.spaces.active.show_repeat = self.show_tiling
+                area.tag_redraw()
+
 #all the properties used by StyleTransfer
 class DIFFUSEST_Properties(bpy.types.PropertyGroup):
     """Container for all Diffusion Style Transfer settings."""
@@ -81,6 +89,13 @@ class DIFFUSEST_Properties(bpy.types.PropertyGroup):
         name="Preview with Normal Map",
         description="Preview also Normal Map",
         default=False,
+        )
+    
+    show_tiling: BoolProperty(
+        name="Show Tiling",
+        description="Repeat image in UV/Image Editor",
+        default=False,
+        update=update_tiling_preview,
         )
     
     gen_normal: BoolProperty(
