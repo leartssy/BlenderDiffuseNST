@@ -451,6 +451,7 @@ class DIFFUSEST_OLT_RunGeneration(Operator):
             style_folder = str(props.style_folder).replace('\\', '/')
             output_folder = str(props.output_folder).replace('\\', '/')
             strength = str(props.strength)
+            ddim_steps = str(props.ddim_steps)
             #textile_strength = str(props.tileability_strength)
             is_tileable = str(props.is_tileable)
             gen_normal = str(props.gen_normal)
@@ -461,7 +462,7 @@ class DIFFUSEST_OLT_RunGeneration(Operator):
             color_strength = str(props.color_strength)
             blur = str(props.blur)
             gap = str(props.gap)
-            args = ["--content_path", content_folder, "--style_path", style_folder, "--output_dir", output_folder, "--alpha", strength, "--model_key", model_key, "--guidance_scale", guidance_scale,"--is_tileable",is_tileable, "--gap", gap, "--blur", blur, "--min_ratio","0.05", "--gen_normal", gen_normal, "--normal_strength", normal_strength,"--color_strength",color_strength]
+            args = ["--content_path", content_folder, "--style_path", style_folder, "--output_dir", output_folder, "--alpha", strength, "--model_key", model_key, "--guidance_scale", guidance_scale,"--is_tileable",is_tileable, "--gap", gap, "--blur", blur, "--min_ratio","0.05", "--gen_normal", gen_normal, "--normal_strength", normal_strength,"--color_strength",color_strength, "--ddpm_steps", "160", "--ddim_steps", ddim_steps]
             #delimiter_space = " "
             #args = str(delimiter_space.join(args))
             #print(args)
