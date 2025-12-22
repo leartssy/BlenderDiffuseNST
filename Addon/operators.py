@@ -187,20 +187,21 @@ def preview(albedo_image_path,normal_path):
     albedo_path = albedo_image_path
     normal_path = normal_path
     
-    #create ico sphere
+    #create ico sphere if not already existing
+    sphere = bpy.data.objects.get("Preview_Sphere")
 
-    bpy.ops.mesh.primitive_ico_sphere_add(
-            subdivisions=4, 
-            radius=1.0,
-            enter_editmode=False, 
-            align='WORLD', 
-            location=(0, 0, 0)
-        )
-    sphere = bpy.context.active_object
-    sphere.name = "Preview_Sphere"
-    bpy.ops.object.shade_smooth()
-    #cleaning up unused data
-    bpy.ops.outliner.orphans_purge(do_local_ids=True, do_linked_ids=True, do_recursive=True)
+    if not sphere:
+        bpy.ops.mesh.primitive_ico_sphere_add(
+                subdivisions=4, 
+                radius=1.0,
+                enter_editmode=False, 
+                align='WORLD', 
+                location=(0, 0, 0)
+            )
+        sphere = bpy.context.active_object
+        sphere.name = "Preview_Sphere"
+        bpy.ops.object.shade_smooth()
+    
 
     #add material
     mat_name = os.path.basename(albedo_path)
@@ -239,6 +240,8 @@ def preview(albedo_image_path,normal_path):
             active_tex_nodes.append(node_normal) #append if there is a normal
         except:
             print(f"Normal texture not found at: {normal_path}")
+    else:
+        print("No Normal Map available for this texture.")
         
 
     #Box mapping for seamless
@@ -262,25 +265,33 @@ def preview(albedo_image_path,normal_path):
     else:
         sphere.data.materials.append(mat)
 
-def get_preview_image():
+    #make sphere active object for visibility
+    bpy.context.view_layer.objects.active = sphere
+    sphere.select_set(True)
+
+def get_preview_image(prev_normal):
     #get the displayed image
-        img = None
-        for area in bpy.context.screen.areas:
-            if area.type == 'IMAGE_EDITOR':
-                img = area.spaces.active.image
-                break
-        if not img:
-            print("No image found in the UV Editor")
-            return
-        #get the albedo path
-        albedo_path = bpy.path.abspath(img.filepath)
+         
+    img = None
+    has_normal = False
+    normal_path = None
+    for area in bpy.context.screen.areas:
+        if area.type == 'IMAGE_EDITOR':
+            img = area.spaces.active.image
+            break
+    if not img:
+        print("No image found in the UV Editor")
+        return
+    #get the albedo path
+    albedo_path = bpy.path.abspath(img.filepath)
+    if prev_normal: #only get path to normal map if desired
         #get normal map path
         base, ext = os.path.splitext(albedo_path)
         normal_path = f"{base}_normal{ext}"
         #check if normal map exists
         has_normal = os.path.exists(normal_path)
-        #return albedo and normal if it´s there
-        return img, normal_path if has_normal else None
+    #return albedo and normal if it´s there
+    return img, normal_path if has_normal else None
 
 #main operator for installing
 class DIFFUSEST_OT_InstallDependencies(Operator):
@@ -507,11 +518,17 @@ class DIFFUSEST_OT_Preview(Operator):
     bl_options = {'REGISTER', 'UNDO'}
 
     def execute(self,context):
-        result = get_preview_image()
+        props = context.scene.diffusest_props
+        prev_normal = props.prev_normal
+        result = get_preview_image(prev_normal)
         if not result:
             self.report({'WARNING'}, "No image found in Image Editor!")
             return {'CANCELLED'}
         img_obj, norm_path = result
         albedo_path = bpy.path.abspath(img_obj.filepath)
+        if norm_path is None:
+            self.report({'INFO'}, "Preview created (No Normal Map found).")
+        else:
+            self.report({'INFO'}, "Preview created with Normal Map.")
         preview(albedo_path, norm_path)
         return {'FINISHED'}

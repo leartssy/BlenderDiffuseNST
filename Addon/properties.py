@@ -77,6 +77,12 @@ class DIFFUSEST_Properties(bpy.types.PropertyGroup):
         default=True,
         )
     
+    prev_normal: BoolProperty(
+        name="Preview with Normal Map",
+        description="Preview also Normal Map",
+        default=False,
+        )
+    
     gen_normal: BoolProperty(
         name="Normalmap",
         description="Generate a normal map",
