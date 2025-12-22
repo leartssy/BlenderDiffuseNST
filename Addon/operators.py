@@ -183,6 +183,105 @@ def install_colormatch():
         sys.executable, "-m", "pip","install", "color-matcher", "--target", target_path, "--no-deps"
     ])
 
+def preview(albedo_image_path,normal_path):
+    albedo_path = albedo_image_path
+    normal_path = normal_path
+    
+    #create ico sphere
+
+    bpy.ops.mesh.primitive_ico_sphere_add(
+            subdivisions=4, 
+            radius=1.0,
+            enter_editmode=False, 
+            align='WORLD', 
+            location=(0, 0, 0)
+        )
+    sphere = bpy.context.active_object
+    sphere.name = "Preview_Sphere"
+    bpy.ops.object.shade_smooth()
+    #cleaning up unused data
+    bpy.ops.outliner.orphans_purge(do_local_ids=True, do_linked_ids=True, do_recursive=True)
+
+    #add material
+    mat_name = os.path.basename(albedo_path)
+    mat_name = os.path.splitext(os.path.basename(albedo_path))[0] #without .png
+    mat = bpy.data.materials.new(f"M_{mat_name}") # Creates a default node tree
+    obj = sphere
+    obj.active_material = mat
+    mat.use_nodes = True # Deprecated, has no effect.
+    nodes = mat.node_tree.nodes
+    links = mat.node_tree.links
+
+    nodes.clear() #clear nodes
+
+    node_out = nodes.new(type='ShaderNodeOutputMaterial')
+    node_bsdf = nodes.new(type='ShaderNodeBsdfPrincipled')
+    node_tex_coord = nodes.new(type='ShaderNodeTexCoord')
+
+    
+    #Albedo texture
+    node_albedo = nodes.new(type='ShaderNodeTexImage')
+    try:
+        img_albedo = bpy.data.images.load(albedo_path)
+        node_albedo.image = img_albedo
+    except:
+        print(f"Albedo not found at: {albedo_path}")
+    #list of existing nodes
+    active_tex_nodes = [node_albedo]
+    if normal_path:
+        #Normal map texture
+        node_normal = nodes.new(type='ShaderNodeTexImage')
+        node_normal_map = nodes.new(type='ShaderNodeNormalMap')
+        try:
+            img_normal = bpy.data.images.load(normal_path)
+            node_normal.image = img_normal
+            img_normal.colorspace_settings.name = 'Non-Color'
+            active_tex_nodes.append(node_normal) #append if there is a normal
+        except:
+            print(f"Normal texture not found at: {normal_path}")
+        
+
+    #Box mapping for seamless
+    for tex_node in active_tex_nodes:
+        tex_node.projection = 'BOX'
+        tex_node.projection_blend = 0.2
+        links.new(node_tex_coord.outputs['Generated'], tex_node.inputs['Vector'])
+        
+    #connecting nodes
+    links.new(node_albedo.outputs['Color'], node_bsdf.inputs['Base Color'])
+    if normal_path:
+        links.new(node_normal.outputs['Color'], node_normal_map.inputs['Color'])
+        links.new(node_normal_map.outputs['Normal'], node_bsdf.inputs['Normal'])
+    
+    links.new(node_bsdf.outputs['BSDF'], node_out.inputs['Surface'])
+
+    #assign material or replace when already has one
+
+    if sphere.data.materials:
+            sphere.data.materials[0] = mat
+    else:
+        sphere.data.materials.append(mat)
+
+def get_preview_image():
+    #get the displayed image
+        img = None
+        for area in bpy.context.screen.areas:
+            if area.type == 'IMAGE_EDITOR':
+                img = area.spaces.active.image
+                break
+        if not img:
+            print("No image found in the UV Editor")
+            return
+        #get the albedo path
+        albedo_path = bpy.path.abspath(img.filepath)
+        #get normal map path
+        base, ext = os.path.splitext(albedo_path)
+        normal_path = f"{base}_normal{ext}"
+        #check if normal map exists
+        has_normal = os.path.exists(normal_path)
+        #return albedo and normal if it´s there
+        return img, normal_path if has_normal else None
+
 #main operator for installing
 class DIFFUSEST_OT_InstallDependencies(Operator):
     """Installs required Python packages using Blender's Python environment"""
@@ -216,8 +315,7 @@ class DIFFUSEST_OT_InstallDependencies(Operator):
         else:
             self.report({'ERROR'}, "Installation failed. Check the Console for details.")
             return {'CANCELLED'}
-        
-        
+          
     
 class DIFFUSEST_OLT_SetupModel(Operator):
     """Download and prepare blipdiffusion model."""
@@ -402,3 +500,18 @@ class DIFFUSEST_OLT_RunGeneration(Operator):
         if self._timer:
             context.window_manager.event_timer_remove(self._timer)
         
+class DIFFUSEST_OT_Preview(Operator):
+    """Preview current displayed texture."""
+    bl_idname = "diffusest.preview"
+    bl_label = "Perform texture preview"
+    bl_options = {'REGISTER', 'UNDO'}
+
+    def execute(self,context):
+        result = get_preview_image()
+        if not result:
+            self.report({'WARNING'}, "No image found in Image Editor!")
+            return {'CANCELLED'}
+        img_obj, norm_path = result
+        albedo_path = bpy.path.abspath(img_obj.filepath)
+        preview(albedo_path, norm_path)
+        return {'FINISHED'}
