@@ -98,6 +98,16 @@ class DIFFUSEST_Properties(bpy.types.PropertyGroup):
         update=update_tiling_preview,
         )
     
+    tiling_scale:FloatProperty(
+        name="Tiling Scale",
+        description="Tiling Scale Preview (0.1 to 10.0)",
+        default=2.0,
+        min=0.1,
+        max=10.0,
+        precision=2,
+        subtype='FACTOR',
+    )
+    
     gen_normal: BoolProperty(
         name="Normalmap",
         description="Generate a normal map",

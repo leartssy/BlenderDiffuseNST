@@ -184,10 +184,9 @@ def install_colormatch():
         sys.executable, "-m", "pip","install", "color-matcher", "--target", target_path, "--no-deps"
     ])
 
-def preview(albedo_image_path,normal_path):
+def preview(albedo_image_path,normal_path, tiling=2.0):
     albedo_path = albedo_image_path
     normal_path = normal_path
-    
     #create ico sphere if not already existing
     sphere = bpy.data.objects.get("Preview_Sphere")
 
@@ -219,8 +218,10 @@ def preview(albedo_image_path,normal_path):
     node_out = nodes.new(type='ShaderNodeOutputMaterial')
     node_bsdf = nodes.new(type='ShaderNodeBsdfPrincipled')
     node_tex_coord = nodes.new(type='ShaderNodeTexCoord')
-
     
+    node_mapping = nodes.new(type='ShaderNodeMapping')
+    node_mapping.inputs['Scale'].default_value = (tiling,tiling,tiling)
+    links.new(node_tex_coord.outputs['Generated'], node_mapping.inputs['Vector'])
     #Albedo texture
     node_albedo = nodes.new(type='ShaderNodeTexImage')
     try:
@@ -248,8 +249,8 @@ def preview(albedo_image_path,normal_path):
     #Box mapping for seamless
     for tex_node in active_tex_nodes:
         tex_node.projection = 'BOX'
-        tex_node.projection_blend = 0.2
-        links.new(node_tex_coord.outputs['Generated'], tex_node.inputs['Vector'])
+        tex_node.projection_blend = 0.05
+        links.new(node_mapping.outputs['Vector'], tex_node.inputs['Vector'])
         
     #connecting nodes
     links.new(node_albedo.outputs['Color'], node_bsdf.inputs['Base Color'])
@@ -522,6 +523,7 @@ class DIFFUSEST_OT_Preview(Operator):
     def execute(self,context):
         props = context.scene.diffusest_props
         prev_normal = props.prev_normal
+        tiling_scale = props.tiling_scale
         result = get_preview_image(prev_normal)
         if not result:
             self.report({'WARNING'}, "No image found in Image Editor!")
@@ -532,5 +534,5 @@ class DIFFUSEST_OT_Preview(Operator):
             self.report({'INFO'}, "Preview created (No Normal Map found).")
         else:
             self.report({'INFO'}, "Preview created with Normal Map.")
-        preview(albedo_path, norm_path)
+        preview(albedo_path, norm_path,tiling_scale)
         return {'FINISHED'}
