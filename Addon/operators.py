@@ -165,6 +165,12 @@ def install_textile():
         sys.executable, "-m", "pip","install", "progressbar2","python_utils", "--target", target_path, "--ignore-installed", "--no-deps"
     ])
 
+
+    subprocess.check_call([
+        sys.executable, "-m", "pip","install", "progressbar2","python_utils", "--target", target_path, "--ignore-installed", "--no-deps"
+    ])
+
+
 def display_image(image_path, is_tileable):
     #absolute path
     abs_path = os.path.abspath(image_path)
@@ -413,7 +419,8 @@ class DIFFUSEST_OLT_RunGeneration(Operator):
                 context.workspace.status_text_set(
                     f"Generating Style Transfer: {current_count}/{self._total_expected}"
                 )
-                context.area.tag_redraw()
+                if context.area:
+                    context.area.tag_redraw()
                     
                 #if new file appeared, display it, do color transfer if needed
                 if current_session_results:
@@ -462,7 +469,8 @@ class DIFFUSEST_OLT_RunGeneration(Operator):
             color_strength = str(props.color_strength)
             blur = str(props.blur)
             gap = str(props.gap)
-            args = ["--content_path", content_folder, "--style_path", style_folder, "--output_dir", output_folder, "--alpha", strength, "--model_key", model_key, "--guidance_scale", guidance_scale,"--is_tileable",is_tileable, "--gap", gap, "--blur", blur, "--min_ratio","0.05", "--gen_normal", gen_normal, "--normal_strength", normal_strength,"--color_strength",color_strength, "--ddpm_steps", "160", "--ddim_steps", ddim_steps]
+            out_size = str(props.out_size)
+            args = ["--content_path", content_folder, "--style_path", style_folder, "--output_dir", output_folder, "--alpha", strength, "--model_key", model_key, "--guidance_scale", guidance_scale,"--is_tileable",is_tileable, "--gap", gap, "--blur", blur, "--min_ratio","0.2", "--gen_normal", gen_normal, "--normal_strength", normal_strength,"--color_strength",color_strength, "--ddpm_steps", "200", "--ddim_steps", ddim_steps, "--out_size", out_size]
             #delimiter_space = " "
             #args = str(delimiter_space.join(args))
             #print(args)
@@ -484,9 +492,9 @@ class DIFFUSEST_OLT_RunGeneration(Operator):
                 style_count = len([f for f in style_path.glob('*') if f.suffix.lower() in exts])
 
             if props.gen_normal:
-                self._total_expected = content_count * style_count * 2 #double the images because need to generate normal maps
+                self._total_expected = content_count * style_count * 3 #three times the images because need to generate normal maps
             else:
-                self._total_expected = content_count * style_count
+                self._total_expected = content_count * style_count * 2 #because of upscaling
             
             now = time.time()
             self._session_start_time = now

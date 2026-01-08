@@ -29,23 +29,23 @@ class DIFFUSEST_Properties(bpy.types.PropertyGroup):
         #description="The source style image",
     #)
     content_folder: StringProperty(
-        name="Content Folder",
+        name="Content Folder/File",
         description="Folder containing content images",
-        default=r"C:\Users\leaes\Documents\Studium\7. Semester\Bachelor\Bachelor Thesis\IndividualProject\Images\TrainingImages\ContentImages\Testing_Content",
+        default=r"C:\Users\leaes\Documents\Studium\7. Semester\Bachelor\Bachelor Thesis\IndividualProject\Images\Produce Results\Content\03_Sand.png",
         subtype='FILE_PATH'
     ) 
 
     style_folder:StringProperty(
-        name="Style Folder",
+        name="Style Folder/File",
         description="Folder containing style images",
-        default=r"C:\Users\leaes\Documents\Studium\7. Semester\Bachelor\Bachelor Thesis\IndividualProject\Images\TrainingImages\StyleImages\Testing_Styles",
+        default=r"C:\Users\leaes\Documents\Studium\7. Semester\Bachelor\Bachelor Thesis\IndividualProject\Images\Produce Results\Style\01_StarryNight.png",
         subtype='FILE_PATH'
     ) 
 
     output_folder:StringProperty(
         name="Output Folder",
         description="Folder for output images",
-        default=r"C:\Users\leaes\Documents\Studium\7. Semester\Bachelor\Bachelor Thesis\IndividualProject\Images\TrainingImages\Resulting Pictures\BlenderDiffuse\Test1",
+        default=r"C:\Users\leaes\Documents\Studium\7. Semester\Bachelor\Bachelor Thesis\IndividualProject\Images\Produce Results\Results",
         subtype='DIR_PATH'
     ) 
 
@@ -142,36 +142,37 @@ class DIFFUSEST_Properties(bpy.types.PropertyGroup):
     ddim_steps:IntProperty(
         name="Stylization Steps",
         description="Number of steps for the diffusion process",
-        default=50,
+        default=40,
         min=10,
-        max=150,
+        max=70,
     )
 
-    seed:IntProperty(
-        name="Seed",
-        description="The random seed for generation (-1 for random)",
-        default=-1,
-        min=-1,
-    )
 
 #seam blending options
     gap:FloatProperty(
         name="Seamblend width",
         description="How wide the blending of seam should be (in px, or in percentage if <1)",
-        default=0.21,
-        min=0.05,
-        max=100,
+        default=0.0,
+        min=0.00,
+        max=0.99,
     )
 
     blur:IntProperty(
         name="Seam Blur",
         description="Blur strength at seam, only use odd numbers",
-        default=7,
+        default=3,
         min=1,
         max=9,
         step=2,
     )
-
+    out_size:IntProperty(
+            name="Output Size",
+            description="Image Output Size",
+            default=1024,
+            min=128,
+            max=16284,
+            step=128,
+        )
     #only_horizontal:BoolProperty(
        # name="Disable Vertical Tiling",
         #description="Option only tile horizontally (e.g. for skyboxes)",
@@ -184,7 +185,14 @@ class DIFFUSEST_Properties(bpy.types.PropertyGroup):
         max=100.0,
         precision=0,
     )
+#for arrow dropdown panels
 
+    # This boolean will act as our arrow toggle
+    show_advanced: BoolProperty(
+        name="Advanced Settings",
+        description="Show extra options",
+        default=False
+)
 
 #addon Requirements in Addon Preferences -> button for installing
 class DIFFUSEST_AddonPreferences(bpy.types.AddonPreferences):

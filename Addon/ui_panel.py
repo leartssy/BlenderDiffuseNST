@@ -6,6 +6,7 @@ from .utils import IS_DEPENDENCIES_AVAILABLE, IS_MODEL_DOWNLOADED, IS_REPO_DOWNL
 D = bpy.data
 C = bpy.context
 
+
 class DIFFUSEST_PT_MainPanel(Panel):
     """Creates panel in UV sidebar"""
     bl_label = "DiffuseST"
@@ -44,15 +45,23 @@ class DIFFUSEST_PT_MainPanel(Panel):
         box.prop(props, "strength")
         box.prop(props, "color_strength")
         box.prop(props, "is_tileable")
-        box.prop(props, "guidance_scale")
-        box.prop(props, "ddim_steps")
-        box.prop(props, "seed")
+        
+        
+        box.prop(props, "out_size")
 
-        box = layout.box()
-        box.label(text="Seam blending options", icon='SETTINGS')
-        box.prop(props,"gap")
-        box.prop(props,"blur")
-        #box.prop(props,"only_horizontal")
+        row = box.row()
+        icon = 'TRIA_DOWN' if props.show_advanced else 'TRIA_RIGHT'
+        row.prop(props, "show_advanced", icon=icon, emboss=False)
+        if props.show_advanced:
+            
+            col = box.column(align=True)
+            col.prop(props, "guidance_scale")
+            col.prop(props, "ddim_steps")
+            col.prop(props, "gap")
+            col.prop(props, "blur")
+            col.label(text="Advanced Tiling Settings", icon='SETTINGS')
+
+            #box.prop(props,"only_horizontal")
 
         box = layout.box()
         box.label(text="Normal Map Generation", icon='SETTINGS')
