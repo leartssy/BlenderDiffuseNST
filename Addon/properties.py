@@ -64,7 +64,7 @@ class DIFFUSEST_Properties(bpy.types.PropertyGroup):
         description="Strength of the Color Transfer (0.0 to 1.0)",
         default=1.0,
         min=0.0,
-        max=1.0,
+        max=2.0,
         precision=2,
         subtype='FACTOR',
     )
@@ -83,6 +83,12 @@ class DIFFUSEST_Properties(bpy.types.PropertyGroup):
         name="Tileable",
         description="Tileable Option",
         default=True,
+        )
+    
+    preserve_aspect_ratio: BoolProperty(
+        name="Preserve Aspect Ratio",
+        description="Preserve Aspect Ratio of content image",
+        default=False,
         )
     
     prev_normal: BoolProperty(
@@ -142,11 +148,18 @@ class DIFFUSEST_Properties(bpy.types.PropertyGroup):
     ddim_steps:IntProperty(
         name="Stylization Steps",
         description="Number of steps for the diffusion process",
-        default=40,
+        default=50,
         min=10,
-        max=70,
+        max=250,
     )
 
+    attention_weight:FloatProperty(
+        name="Attention Injection Weight",
+        description="Weight of Attention Injection",
+        default=0.2,
+        min=0.0,
+        max=1.0,
+    )
 
 #seam blending options
     gap:FloatProperty(
@@ -168,9 +181,9 @@ class DIFFUSEST_Properties(bpy.types.PropertyGroup):
     out_size:IntProperty(
             name="Output Size",
             description="Image Output Size",
-            default=1024,
+            default=2048,
             min=128,
-            max=16284,
+            max=8192,
             step=128,
         )
     #only_horizontal:BoolProperty(

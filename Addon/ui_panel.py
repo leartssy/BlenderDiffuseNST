@@ -45,6 +45,7 @@ class DIFFUSEST_PT_MainPanel(Panel):
         box.prop(props, "strength")
         box.prop(props, "color_strength")
         box.prop(props, "is_tileable")
+        box.prop(props, "preserve_aspect_ratio")
         
         
         box.prop(props, "out_size")
@@ -57,6 +58,7 @@ class DIFFUSEST_PT_MainPanel(Panel):
             col = box.column(align=True)
             col.prop(props, "guidance_scale")
             col.prop(props, "ddim_steps")
+            col.prop(props, "attention_weight")
             col.prop(props, "gap")
             col.prop(props, "blur")
             col.label(text="Advanced Tiling Settings", icon='SETTINGS')
