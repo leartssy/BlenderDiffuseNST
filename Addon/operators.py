@@ -300,81 +300,55 @@ def get_preview_image(prev_normal):
 
 #main operator for installing
 class DIFFUSEST_OT_InstallDependencies(Operator):
-    """Installs required Python packages using Blender's Python environment"""
-    bl_idname = "diffusest.install_deps"
-    bl_label = "Install DiffusionST Dependencies"
+    """Install Dependencies, Model, and Repo"""
+    bl_idname = "diffusest.setup_all"
+    bl_label = "Full Setup"
 
     install_success: bool = False
     
     def execute(self,context):
-        install_success = False
-        self.report({'INFO'}, "Starting Dependency installation. Blender will freeze temporarily.")
-        addon_prefs = context.preferences.addons.get(__package__).preferences
-        #check if everything works
-        install_dependencies()
-        try:
-            import torch
-            #import diffusers
-            print(torch.__version__, torch.version.cuda, torch.cuda.is_available())
-            print("Dependencies installed.Restart Blender.")
-            install_success=True
-        except subprocess.CalledProcessError as e:
-            self.report({'ERROR'}, f"Installation failed: {e.stderr.decode('utf-8')}")
-            install_success = False
-        except Exception as e:
-            self.report({'ERROR'}, f"An unexpected error occurred: {e}")
-            install_success = False
 
-        if install_success:
-            self.report({'INFO'}, "Installation complete. **Please restart Blender** to finalize and use the add-on.")
-            return {'FINISHED'}
-        else:
-            self.report({'ERROR'}, "Installation failed. Check the Console for details.")
+        self.report({'INFO'}, "Starting Dependency installation. Blender will freeze temporarily.")
+
+        try:
+            install_dependencies()
+            #refresh the utility flags
+            from . import utils
+            utils.check_dependencies()
+        except Exception as e:
+            self.report({'ERROR'}, f"Dependency Error:{e}")
             return {'CANCELLED'}
           
-    
-class DIFFUSEST_OLT_SetupModel(Operator):
-    """Download and prepare blipdiffusion model."""
-    bl_idname = "diffusest.download_blip"
-    bl_label = "Download blipdiffusion model"
-    def execute(self,context):
-        if IS_DEPENDENCIES_AVAILABLE:
-            self.report({'INFO'}, "Starting Model Download...")
-            try:
-                setupStyleTransferModel()
-                if IS_MODEL_DOWNLOADED:
-                    self.report({'INFO'}, "Model successfully downloaded.")
-                    return {'FINISHED'}
-                else:
-                    self.report({'ERROR'}, "Model download failed.")
-                    return {'CANCELLED'}
-            except Exception as e:
-                self.report({'ERROR'},f"Model download failed: {str(e)}.")
-                return {'CANCELLED'}
+        #Download model
+        
+        self.report({'INFO'}, "Starting Model Download...")
+        try:
+            setupStyleTransferModel()
+            utils.check_model_downloads()
+        
+        except Exception as e:
+            self.report({'ERROR'}, f"Model Error_{e}")
+            return {'CANCELLED'}
             
-class DIFFUSEST_OLT_DownloadRepo(Operator):
-    """Download the DiffuseST Repo."""
-    bl_idname = "diffusest.download_repo"
-    bl_label = "Download DiffuseST repo"
-    def execute(self,context):
-        if IS_DEPENDENCIES_AVAILABLE and IS_MODEL_DOWNLOADED:
-            self.report({'INFO'}, "Starting Repo Download...")
-            try:
-                download_DiffuseST_repo()
-                #install_textile()
-                install_progressbar()
-                install_colormatch()
-                check_repo_downloads()
-                if IS_REPO_DOWNLOADED:
-                    self.report({'INFO'}, "Repo successfully downloaded.")
-                    #print("Installing Textile")
-                    return {'FINISHED'}
-                else:
-                    self.report({'ERROR'}, "Repo download failed.")
-                    return {'CANCELLED'}
-            except Exception as e:
-                self.report({'ERROR'},f"Repo download failed: {str(e)}.")
-                return {'CANCELLED'}
+            
+        self.report({'INFO'}, "Starting Repo Download...")
+
+        try:
+            download_DiffuseST_repo()
+            install_progressbar()
+            install_colormatch()
+            check_repo_downloads()
+            
+            utils.check_repo_downloads()
+        except Exception as e:
+            self.report({'ERROR'}, f"Repo Error: {e}")
+            return {'CANCELLED'}
+        
+        self.report({'INFO'}, "Setup Complete! PLEASE RESTART BLENDER.")
+        return {'FINISHED'}
+          
+    
+        
     
 class DIFFUSEST_OLT_RunGeneration(Operator):
     """Run the image generation process using the diffusion model."""

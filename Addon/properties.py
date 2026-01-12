@@ -17,17 +17,6 @@ def update_tiling_preview(self,context):
 class DIFFUSEST_Properties(bpy.types.PropertyGroup):
     """Container for all Diffusion Style Transfer settings."""
 
-    #content_image: StringProperty(
-        #type=bpy.types.Image,
-        #name="Content Images Path",
-        #description="The source content image",
-    #)
-
-    #style_image: StringProperty(
-        #type=bpy.types.Image,
-        #name="Style Images Path",
-        #description="The source style image",
-    #)
     content_folder: StringProperty(
         name="Content Folder/File",
         description="Folder containing content images",
@@ -221,55 +210,26 @@ class DIFFUSEST_AddonPreferences(bpy.types.AddonPreferences):
 
     def draw(self, context):
         layout = self.layout
+        from . import utils
         prefs = context.preferences.addons[__package__].preferences
         
+        is_ready = utils.IS_DEPENDENCIES_AVAILABLE and utils.IS_MODEL_DOWNLOADED and utils.IS_REPO_DOWNLOADED
     
-        if IS_DEPENDENCIES_AVAILABLE:
-            layout.label(text="Dependencies loaded and ready!", icon='CHECKMARK')
+        if is_ready:
+            layout.label(text="Everything is set up correctly!", icon='CHECKMARK')
 
             # Button is permanently disabled
             row = layout.row()
             row.enabled = False 
-            row.operator("diffusest.install_deps", text="Dependencies are Installed", icon='CHECKMARK')
+            row.operator("diffusest.setup_all", text="Setup successful", icon='CHECKMARK')
         else:
-            layout.label(text="Dependencies missing. Installation required", icon='ERROR')
+            layout.label(text="Setup required. (Dependencies, Model, Repo)", icon='ERROR')
 
             # Installation Button - enabled only if not installed and not installing
             row = layout.row()
-            row.enabled = not IS_DEPENDENCIES_AVAILABLE and not self.is_installing
-            row.operator("diffusest.install_deps", text="Install Dependencies", icon='IMPORT')
-
-        #show path information for debugging
-        layout.separator()
-        #Button for downloading model
-        if IS_DEPENDENCIES_AVAILABLE:
-            if IS_MODEL_DOWNLOADED:
-                row = layout.row()
-                row.enabled =False
-                row.operator("diffusest.download_blip", text = "Blipdiffusion Model already downloaded.", icon='CHECKMARK')
-            else:
-                row = layout.row()
-                row.enabled =True
-                row.operator("diffusest.download_blip", text = "Download Blipdiffusion Model.", icon='IMPORT')
-        else:
-            row = layout.row()
-            row.enabled = False
-            row.operator("diffusest.download_blip", text = "Install Dependencies first.", icon='IMPORT')
-        #Button for installing repository
-        layout.separator()
-        if IS_DEPENDENCIES_AVAILABLE and IS_MODEL_DOWNLOADED:
-            if IS_REPO_DOWNLOADED:
-                row = layout.row()
-                row.enabled =True
-                row.operator("diffusest.download_repo", text = "Repository already downloaded, reload?", icon='CHECKMARK')
-            else:
-                row = layout.row()
-                row.enabled =True
-                row.operator("diffusest.download_repo", text = "Download DiffuseST Repository and textile.", icon='IMPORT')
-        else:
-            row = layout.row()
-            row.enabled = False
-            row.operator("diffusest.download_repo", text = "Install Dependencies and Model first.", icon='IMPORT')
+            row.enabled = not self.is_installing
+            row.operator("diffusest.setup_all", text="Install Everything", icon='IMPORT')
+        
         #information
         layout.separator()
         layout.label(text=f"Blender Python Executable: {sys.executable}", icon='INFO')
