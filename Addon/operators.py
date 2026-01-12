@@ -161,15 +161,12 @@ def install_textile():
     subprocess.check_call([
         sys.executable, "-m", "pip","install", "textile-metric", "--target", target_path, "--ignore-installed", "--no-deps"
     ])
+
+def install_progressbar():
+    target_path = get_user_modules_path()
     subprocess.check_call([
         sys.executable, "-m", "pip","install", "progressbar2","python_utils", "--target", target_path, "--ignore-installed", "--no-deps"
     ])
-
-
-    subprocess.check_call([
-        sys.executable, "-m", "pip","install", "progressbar2","python_utils", "--target", target_path, "--ignore-installed", "--no-deps"
-    ])
-
 
 def display_image(image_path, is_tileable):
     #absolute path
@@ -365,6 +362,7 @@ class DIFFUSEST_OLT_DownloadRepo(Operator):
             try:
                 download_DiffuseST_repo()
                 #install_textile()
+                install_progressbar()
                 install_colormatch()
                 check_repo_downloads()
                 if IS_REPO_DOWNLOADED:
