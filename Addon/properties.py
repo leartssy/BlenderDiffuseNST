@@ -64,7 +64,7 @@ class DIFFUSEST_Properties(bpy.types.PropertyGroup):
         description="Strength of the Color Transfer (0.0 to 1.0)",
         default=1.0,
         min=0.0,
-        max=2.0,
+        max=1.0,
         precision=2,
         subtype='FACTOR',
     )
@@ -82,7 +82,7 @@ class DIFFUSEST_Properties(bpy.types.PropertyGroup):
     is_tileable: BoolProperty(
         name="Tileable",
         description="Tileable Option",
-        default=True,
+        default=False,
         )
     
     preserve_aspect_ratio: BoolProperty(
@@ -138,7 +138,7 @@ class DIFFUSEST_Properties(bpy.types.PropertyGroup):
     guidance_scale:FloatProperty(
         name="Guidance Scale",
         description="Guidance Scale (0.0 to 10.0)",
-        default=5.0,
+        default=7.5,
         min=1.1,
         max=10.0,
         precision=2,
@@ -156,7 +156,7 @@ class DIFFUSEST_Properties(bpy.types.PropertyGroup):
     attention_weight:FloatProperty(
         name="Attention Injection Weight",
         description="Weight of Attention Injection",
-        default=0.2,
+        default=0.7,
         min=0.0,
         max=1.0,
     )
