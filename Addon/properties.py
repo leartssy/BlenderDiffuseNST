@@ -31,21 +31,21 @@ class DIFFUSEST_Properties(bpy.types.PropertyGroup):
     content_folder: StringProperty(
         name="Content Folder/File",
         description="Folder containing content images",
-        default=r"C:\Users\leaes\Documents\Studium\7. Semester\Bachelor\Bachelor Thesis\IndividualProject\Images\Produce Results\Content\03_Sand.png",
+        default="",
         subtype='FILE_PATH'
     ) 
 
     style_folder:StringProperty(
         name="Style Folder/File",
         description="Folder containing style images",
-        default=r"C:\Users\leaes\Documents\Studium\7. Semester\Bachelor\Bachelor Thesis\IndividualProject\Images\Produce Results\Style\01_StarryNight.png",
+        default="",
         subtype='FILE_PATH'
     ) 
 
     output_folder:StringProperty(
         name="Output Folder",
         description="Folder for output images",
-        default=r"C:\Users\leaes\Documents\Studium\7. Semester\Bachelor\Bachelor Thesis\IndividualProject\Images\Produce Results\Results",
+        default="",
         subtype='DIR_PATH'
     ) 
 
