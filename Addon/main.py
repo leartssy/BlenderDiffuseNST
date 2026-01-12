@@ -10,8 +10,8 @@ def run_style_transfer(repo_dir:str,script_path:str, args:str):
     import numpy
     import torch
     import transformers
-    import textile
-    from textile.utils.image_utils import read_and_process_image
+    #import textile
+    #from textile.utils.image_utils import read_and_process_image
     import progressbar
     
 
@@ -32,7 +32,7 @@ def run_style_transfer(repo_dir:str,script_path:str, args:str):
 
     #print("-" * 50)
 
-    loss_textile = textile.Textile()
+    #loss_textile = textile.Textile()
     #make sure environment is used in external script
     addon_env = os.environ.copy()
     addon_env['PYTHONPATH'] = MODULES_PATH
