@@ -369,7 +369,7 @@ class DIFFUSEST_OLT_DownloadRepo(Operator):
                 check_repo_downloads()
                 if IS_REPO_DOWNLOADED:
                     self.report({'INFO'}, "Repo successfully downloaded.")
-                    print("Installing Textile")
+                    #print("Installing Textile")
                     return {'FINISHED'}
                 else:
                     self.report({'ERROR'}, "Repo download failed.")
