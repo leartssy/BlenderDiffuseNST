@@ -46,6 +46,7 @@ class DIFFUSEST_PT_MainPanel(Panel):
         box.prop(props, "color_strength")
         box.prop(props, "is_tileable")
         box.prop(props, "preserve_aspect_ratio")
+        box.prop(props, "is_preview")
         
         
         box.prop(props, "out_size")

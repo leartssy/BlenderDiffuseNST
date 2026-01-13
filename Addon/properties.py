@@ -109,6 +109,12 @@ class DIFFUSEST_Properties(bpy.types.PropertyGroup):
         default=False,
         )
     
+    is_preview: BoolProperty(
+        name="Preview",
+        description="Tick for Preview Mode",
+        default=False,
+        )
+    
     is_running: BoolProperty(
         name="Is Running",
         default=False,

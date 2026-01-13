@@ -468,9 +468,10 @@ class DIFFUSEST_OLT_RunGeneration(Operator):
             out_size = str(props.out_size)
             attention_weight = str(props.attention_weight)
             preserve_aspect_ratio = str(props.preserve_aspect_ratio)
+            is_preview = str(props.is_preview)
             args = ["--content_path", content_folder, "--style_path", style_folder, "--output_dir", output_folder, "--alpha", strength, "--model_key", model_key, "--guidance_scale", guidance_scale,"--is_tileable",is_tileable, "--gap", gap, "--blur", blur, "--min_ratio","0.2", "--gen_normal", gen_normal, "--normal_strength", normal_strength,"--color_strength",color_strength, "--ddpm_steps", "250"
             ""
-            "", "--ddim_steps", ddim_steps, "--out_size", out_size, "--keep_aspect_ratio", preserve_aspect_ratio, "--attention_weight", attention_weight]
+            "", "--ddim_steps", ddim_steps, "--out_size", out_size, "--keep_aspect_ratio", preserve_aspect_ratio, "--attention_weight", attention_weight, "--is_preview", is_preview]
             #delimiter_space = " "
             #args = str(delimiter_space.join(args))
             #print(args)
