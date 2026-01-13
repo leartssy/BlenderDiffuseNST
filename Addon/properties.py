@@ -228,6 +228,10 @@ class DIFFUSEST_AddonPreferences(bpy.types.AddonPreferences):
             row = layout.row()
             row.enabled = False 
             row.operator("diffusest.setup_all", text="Setup successful", icon='CHECKMARK')
+
+            row = layout.row()
+            row.operator("diffusest.reload_repo", text="Install Complete. Reload Repository?", icon='IMPORT')
+
         else:
             layout.label(text="Setup required. (Dependencies, Model, Repo)", icon='ERROR')
 
@@ -235,7 +239,8 @@ class DIFFUSEST_AddonPreferences(bpy.types.AddonPreferences):
             row = layout.row()
             row.enabled = not self.is_installing
             row.operator("diffusest.setup_all", text="Install Everything", icon='IMPORT')
-        
+            
+
         #information
         layout.separator()
         layout.label(text=f"Blender Python Executable: {sys.executable}", icon='INFO')

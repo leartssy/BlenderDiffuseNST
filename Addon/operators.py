@@ -347,7 +347,28 @@ class DIFFUSEST_OT_InstallDependencies(Operator):
         self.report({'INFO'}, "Setup Complete! PLEASE RESTART BLENDER.")
         return {'FINISHED'}
           
+class DIFFUSEST_OT_ReloadRepo(Operator):
+    """Reload Repo"""
+    bl_idname = "diffusest.reload_repo"
+    bl_label = "Reload Repo"
+
+    install_success: bool = False
     
+    def execute(self,context):
+
+        self.report({'INFO'}, "Starting Repo Download...")
+        from . import utils
+        try:
+            download_DiffuseST_repo()
+            check_repo_downloads()
+            
+            utils.check_repo_downloads()
+        except Exception as e:
+            self.report({'ERROR'}, f"Repo Error: {e}")
+            return {'CANCELLED'}
+        
+        self.report({'INFO'}, "Repo reloaded successfully.")
+        return {'FINISHED'}   
         
     
 class DIFFUSEST_OLT_RunGeneration(Operator):
@@ -363,21 +384,21 @@ class DIFFUSEST_OLT_RunGeneration(Operator):
     _last_display_time = 0.0
 
     #quantitative timer
-    _last_file_finish_time = 0.0  # To track the gap between files
-    _generation_times = []       # To store results for your thesis report
+    #_last_file_finish_time = 0.0  # To track the gap between files
+    #_generation_times = []       # To store results for your thesis report
 
     def modal(self,context,event):
         import time
         #check if process is still running
         if self._process is None or self._process.poll() is not None:
             #timer
-            if self._generation_times:
-                avg_time = sum(self._generation_times) / len(self._generation_times)
-                print(f"\n--- THESIS QUANTITATIVE DATA ---")
-                print(f"Total Images: {len(self._generation_times)}")
-                print(f"Average Time per Image: {avg_time:.2f}s")
-                print(f"Raw Data (seconds): {self._generation_times}")
-                print(f"--------------------------------\n")
+            #if self._generation_times:
+                #avg_time = sum(self._generation_times) / len(self._generation_times)
+               # print(f"\n--- THESIS QUANTITATIVE DATA ---")
+               # print(f"Total Images: {len(self._generation_times)}")
+               # print(f"Average Time per Image: {avg_time:.2f}s")
+               # print(f"Raw Data (seconds): {self._generation_times}")
+               # print(f"--------------------------------\n")
             
             
             #clear progress bar
@@ -417,13 +438,13 @@ class DIFFUSEST_OLT_RunGeneration(Operator):
 
                     if newest_time > self._last_display_time:
                         #timer
-                        duration = time.time() - self._last_file_finish_time
-                        self._generation_times.append(duration)
+                        #duration = time.time() - self._last_file_finish_time
+                        #self._generation_times.append(duration)
                         
                         display_image(str(newest_file),is_tileable)
                         
                         #timer reset
-                        self._last_file_finish_time = time.time()
+                        #self._last_file_finish_time = time.time()
 
                         self._last_display_time = newest_time
                         self.report({'INFO'}, f"Updated: {newest_file.name}")
