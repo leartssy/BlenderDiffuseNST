@@ -18,15 +18,15 @@ class DIFFUSEST_Properties(bpy.types.PropertyGroup):
     """Container for all Diffusion Style Transfer settings."""
 
     content_folder: StringProperty(
-        name="Content Folder/File",
-        description="Folder containing content images",
+        name="Content File or Folder",
+        description="File or Folder containing content images",
         default="",
         subtype='FILE_PATH'
     ) 
 
     style_folder:StringProperty(
-        name="Style Folder/File",
-        description="Folder containing style images",
+        name="Style File or Folder",
+        description="File or Folder containing style images",
         default="",
         subtype='FILE_PATH'
     ) 
@@ -39,9 +39,9 @@ class DIFFUSEST_Properties(bpy.types.PropertyGroup):
     ) 
 
     strength:FloatProperty(
-        name="Content Strength",
-        description="Stylization strength (0.0 to 1.0)",
-        default=0.8,
+        name="Stylization Strength",
+        description="Strength of the Stylization",
+        default=0.2,
         min=0.0,
         max=1.0,
         precision=2,
@@ -50,7 +50,7 @@ class DIFFUSEST_Properties(bpy.types.PropertyGroup):
 
     color_strength:FloatProperty(
         name="Color Transfer Strength",
-        description="Strength of the Color Transfer (0.0 to 1.0)",
+        description="Strength of the Color Transferred from the Style Image",
         default=1.0,
         min=0.0,
         max=1.0,
@@ -70,32 +70,32 @@ class DIFFUSEST_Properties(bpy.types.PropertyGroup):
     #)
     is_tileable: BoolProperty(
         name="Tileable",
-        description="Tileable Option",
+        description="Tick to Generate a Tileable Texture",
         default=False,
         )
     
     preserve_aspect_ratio: BoolProperty(
         name="Preserve Aspect Ratio",
-        description="Preserve Aspect Ratio of content image",
+        description="Tick to Preserve Aspect Ratio of Content Image, Otherwise a Square Texture will be Produced",
         default=False,
         )
     
     prev_normal: BoolProperty(
         name="Preview with Normal Map",
-        description="Preview also Normal Map",
+        description="Tick to Preview the Texture Sphere with Normal Map Applied",
         default=False,
         )
     
     show_tiling: BoolProperty(
         name="Show Tiling",
-        description="Repeat image in UV/Image Editor",
+        description="Preview Texture Tiling in the Image Editor",
         default=False,
         update=update_tiling_preview,
         )
     
     tiling_scale:FloatProperty(
         name="Tiling Scale",
-        description="Tiling Scale Preview (0.1 to 10.0)",
+        description="Scale of Texture on Preview Sphere",
         default=2.0,
         min=0.1,
         max=10.0,
@@ -105,7 +105,7 @@ class DIFFUSEST_Properties(bpy.types.PropertyGroup):
     
     gen_normal: BoolProperty(
         name="Normalmap",
-        description="Generate a normal map",
+        description="Tick to also Generate a normal map",
         default=False,
         )
     
@@ -116,7 +116,7 @@ class DIFFUSEST_Properties(bpy.types.PropertyGroup):
     
     normal_strength:FloatProperty(
         name="Normal Strength",
-        description="Normal Strength (0.0 to 5.0)",
+        description="Strength of Generated Normal Map",
         default=2.0,
         min=0.0,
         max=5.0,
@@ -126,7 +126,7 @@ class DIFFUSEST_Properties(bpy.types.PropertyGroup):
 
     guidance_scale:FloatProperty(
         name="Guidance Scale",
-        description="Guidance Scale (0.0 to 10.0)",
+        description="Guidance Scale: High for more Artistic Results",
         default=7.5,
         min=1.1,
         max=10.0,
@@ -144,7 +144,7 @@ class DIFFUSEST_Properties(bpy.types.PropertyGroup):
 
     attention_weight:FloatProperty(
         name="Attention Injection Weight",
-        description="Weight of Attention Injection",
+        description="Weight of Attention Injection: High for following Style and Content Strictly",
         default=0.7,
         min=0.0,
         max=1.0,
@@ -153,7 +153,7 @@ class DIFFUSEST_Properties(bpy.types.PropertyGroup):
 #seam blending options
     gap:FloatProperty(
         name="Seamblend width",
-        description="How wide the blending of seam should be (in px, or in percentage if <1)",
+        description="Width of the Blended Seam in Percentage of Image Size",
         default=0.0,
         min=0.00,
         max=0.99,
@@ -161,7 +161,7 @@ class DIFFUSEST_Properties(bpy.types.PropertyGroup):
 
     blur:IntProperty(
         name="Seam Blur",
-        description="Blur strength at seam, only use odd numbers",
+        description="Blur Strength of Seam Blending",
         default=3,
         min=1,
         max=9,
@@ -169,7 +169,7 @@ class DIFFUSEST_Properties(bpy.types.PropertyGroup):
     )
     out_size:IntProperty(
             name="Output Size",
-            description="Image Output Size",
+            description="Image Output Size, Longer edge on Non-Square Results",
             default=2048,
             min=128,
             max=8192,

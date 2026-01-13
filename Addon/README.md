@@ -13,25 +13,28 @@
 
 
 
-2\. Install Python Dependencies (Crucial)
+2\. Install Python Dependencies and Setup (Crucial)
 
 
 
 * In Edit > Preferences > Add-ons: find "Diffusion Style Transfer" and expand the details
-* If status is "Dependencies missing", click the install button
-* The installation process may take several minutes, wait until the progress is done
+* If status is "Setup required", click the install button
+* The installation process may take several minutes, wait until the progress is done (You can watch the installation progress by opening the System Console under Window > Toggle System Console)
 * CRITICAL: you must close and restart Blender after installation
 
 
 
-3\. Troubleshooting: 
+
+
+3\. Generation
 
 
 
-* If Install Dependencies runs successful, but even after a restart of Blender the status never changes to "Dependencies Installed"
-* likely because Python library (torch) requires specific C++ runtime library that is often missing on Windows Systems
-* -> Solution:
-* Download and install latest Visual Studio Redistributable for Windows X64 on website: https://learn.microsoft.com/en-us/cpp/windows/latest-supported-vc-redist?view=msvc-170#latest-supported-redistributable-version
-* Run the installer and choose the Repair option
-* Restart your computer (Highly Recommended)
-* Re-open Blender: Dependencies should now be recognized instantly
+* Open the Image Editor or UV Editor Window
+* Expand the Sidepanel
+* You should find the Tab "NST" where the tool is located
+* Hover over the parameters to get an explanation
+* INFO: The first time of generating a content or style image will take about 1min longer per image than later generations
+* Warning: if picture size is bigger than 2048, generation times will take longer
+* For more Progress Feedback during the generation, you can open the System Console
+* CRITICAL: Do not cancel the generation process as this will lead to errors

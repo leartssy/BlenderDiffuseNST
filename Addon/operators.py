@@ -429,7 +429,9 @@ class DIFFUSEST_OLT_RunGeneration(Operator):
             content_folder = str(props.content_folder).replace('\\', '/')
             style_folder = str(props.style_folder).replace('\\', '/')
             output_folder = str(props.output_folder).replace('\\', '/')
-            strength = str(props.strength)
+            content_strength = props.strength
+            style_strength = 1 - content_strength
+            strength = str(style_strength)
             ddim_steps = str(props.ddim_steps)
             #textile_strength = str(props.tileability_strength)
             is_tileable = str(props.is_tileable)
@@ -468,9 +470,9 @@ class DIFFUSEST_OLT_RunGeneration(Operator):
                 style_count = len([f for f in style_path.glob('*') if f.suffix.lower() in exts])
 
             if props.gen_normal:
-                self._total_expected = content_count * style_count * 3 #three times the images because need to generate normal maps
+                self._total_expected = content_count * style_count * 2 #three times the images because need to generate normal maps
             else:
-                self._total_expected = content_count * style_count * 2 #because of upscaling
+                self._total_expected = content_count * style_count * 1 #because of upscaling
             
             now = time.time()
             self._session_start_time = now
