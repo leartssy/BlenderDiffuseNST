@@ -362,9 +362,24 @@ class DIFFUSEST_OLT_RunGeneration(Operator):
     _session_start_time = 0.0
     _last_display_time = 0.0
 
+    #quantitative timer
+    _last_file_finish_time = 0.0  # To track the gap between files
+    _generation_times = []       # To store results for your thesis report
+
     def modal(self,context,event):
+        import time
         #check if process is still running
         if self._process is None or self._process.poll() is not None:
+            #timer
+            if self._generation_times:
+                avg_time = sum(self._generation_times) / len(self._generation_times)
+                print(f"\n--- THESIS QUANTITATIVE DATA ---")
+                print(f"Total Images: {len(self._generation_times)}")
+                print(f"Average Time per Image: {avg_time:.2f}s")
+                print(f"Raw Data (seconds): {self._generation_times}")
+                print(f"--------------------------------\n")
+            
+            
             #clear progress bar
             self.cancel(context)
             self.report({'INFO'}, "Style Transfer Finished.")
@@ -401,8 +416,15 @@ class DIFFUSEST_OLT_RunGeneration(Operator):
                     newest_time = newest_file.stat().st_mtime
 
                     if newest_time > self._last_display_time:
+                        #timer
+                        duration = time.time() - self._last_file_finish_time
+                        self._generation_times.append(duration)
+                        
                         display_image(str(newest_file),is_tileable)
                         
+                        #timer reset
+                        self._last_file_finish_time = time.time()
+
                         self._last_display_time = newest_time
                         self.report({'INFO'}, f"Updated: {newest_file.name}")
 
@@ -478,6 +500,9 @@ class DIFFUSEST_OLT_RunGeneration(Operator):
             self._session_start_time = now
             self._last_display_time = now
             context.window_manager.progress_begin(0, self._total_expected) 
+            #timer
+            self._last_file_finish_time = now # Set start point for first image
+            self._generation_times = []      # Clear list for new run
 
             #########
             try:
