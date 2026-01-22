@@ -98,8 +98,11 @@ def setupStyleTransferModel():
     #Download the model
 
     #set an output directory
-    output_dir = Path.home() / "Blender_AI_Models" / "blipdiffusion_download"
+    addon_dir = Path(os.path.dirname(os.path.realpath(__file__)))
     #create directory
+    output_dir = addon_dir / "models" / "blipdiffusion"
+
+    # Create the directory if it doesn't exist
     output_dir.mkdir(parents=True, exist_ok=True)
 
     print(f"Downloading model to: {str(output_dir)}")
@@ -121,21 +124,27 @@ def download_DiffuseST_repo():
     #clone repository
     repo_url = "https://github.com/leartssy/DiffusionStyleTransfer_Tileable.git"
     #set an output directory
-    parent_dir = Path.home() / "Blender_AI_Models"
+    addon_dir = Path(os.path.dirname(os.path.realpath(__file__)))
+    repo_folder_name = "DiffusionStyleTransfer_Tileable"
     #create directory if doesn´t exist
-    parent_dir.mkdir(parents=True, exist_ok=True)
-    output_dir = get_repo_root_path()
-    print(f"Downloading DiffuseST repo to: {str(parent_dir)}")
+    output_dir = addon_dir / repo_folder_name
+    branch_name = "main"
+    
+    print(f"Downloading DiffuseST repo to: {str(addon_dir)}")
     if output_dir.is_dir():
         print(f"Repository already exists at: {str(output_dir)}")
         try:
-                # --- PULL (UPDATE) THE EXISTING REPO ---
-                print("Attempting to pull (update) the repository...")
-                subprocess.check_call([
-                    "git", "pull"
-                ], cwd=str(output_dir)) # CRITICAL: run 'git pull' inside the repo folder
-                print("Repository successfully updated.")
-                return output_dir
+            # 1. Fetch all updates
+            subprocess.check_call(["git", "fetch", "origin"], cwd=str(output_dir))
+            # 2. Force switch to the specific branch
+            # 2. Force Create/Reset local branch to match the remote branch
+            # -B creates the branch if it doesn't exist or resets it if it does
+            subprocess.check_call(["git", "checkout", "-B", branch_name, f"origin/{branch_name}"], cwd=str(output_dir))
+            # 3. Clean up any leftover files from other branches
+            subprocess.check_call(["git", "reset", "--hard", f"origin/{branch_name}"], cwd=str(output_dir))
+            
+            print("Repository successfully updated.")
+            return output_dir
         except subprocess.CalledProcessError:
             # This handles errors like no network, local uncommitted changes, etc.
             print("Error occurred while updating (pulling) the repository.")
@@ -146,11 +155,14 @@ def download_DiffuseST_repo():
             return output_dir
     else:
         try:
+            # Clone specifically with the -b flag for the branch
+            print(f"Cloning branch '{branch_name}'...")
             subprocess.check_call([
-                "git","clone",repo_url
-            ], cwd=str(parent_dir))
+                "git", "clone", "-b", branch_name, repo_url
+            ], cwd=str(addon_dir))
             
-            print(f"Repository successfully cloned to {output_dir}")
+            print(f"Repository successfully cloned branch {branch_name}")
+            return output_dir
         except FileNotFoundError:
             print("Git executable not found. Ensure git is installed on operating system!")
         except:
@@ -361,6 +373,10 @@ class DIFFUSEST_OT_ReloadRepo(Operator):
         try:
             download_DiffuseST_repo()
             check_repo_downloads()
+            import importlib
+            from . import main, utils # Add any other modules that change
+            importlib.reload(main)
+            importlib.reload(utils)
             
             utils.check_repo_downloads()
         except Exception as e:
@@ -468,6 +484,7 @@ class DIFFUSEST_OLT_RunGeneration(Operator):
             props.is_running = True
             repo_dir = get_repo_root_path()
             script_path = str(repo_dir / "run.py")
+            print(f"DEBUG: I am looking for run.py at: {script_path}")
             model_key = str(get_model_path()).replace('\\', '/')
             content_folder = str(props.content_folder).replace('\\', '/')
             style_folder = str(props.style_folder).replace('\\', '/')
@@ -487,12 +504,12 @@ class DIFFUSEST_OLT_RunGeneration(Operator):
             blur = str(props.blur)
             gap = str(props.gap)
             out_size = str(props.out_size)
-            attention_weight = str(props.attention_weight)
+            is_attention = str(props.is_attention)
             preserve_aspect_ratio = str(props.preserve_aspect_ratio)
             is_preview = str(props.is_preview)
             args = ["--content_path", content_folder, "--style_path", style_folder, "--output_dir", output_folder, "--alpha", strength, "--model_key", model_key, "--guidance_scale", guidance_scale,"--is_tileable",is_tileable, "--gap", gap, "--blur", blur, "--min_ratio","0.2", "--gen_normal", gen_normal, "--normal_strength", normal_strength,"--color_strength",color_strength, "--ddpm_steps", "250"
             ""
-            "", "--ddim_steps", ddim_steps, "--out_size", out_size, "--keep_aspect_ratio", preserve_aspect_ratio, "--attention_weight", attention_weight, "--is_preview", is_preview]
+            "", "--ddim_steps", ddim_steps, "--out_size", out_size, "--keep_aspect_ratio", preserve_aspect_ratio, "--is_attention", is_attention, "--is_preview", is_preview]
             #delimiter_space = " "
             #args = str(delimiter_space.join(args))
             #print(args)

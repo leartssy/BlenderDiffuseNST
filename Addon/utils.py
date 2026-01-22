@@ -37,10 +37,14 @@ def check_dependencies():
         print(f"Diffusion Style Transfer Addon: General error loading libraries: {e}")
         IS_DEPENDENCIES_AVAILABLE = False
 
+def get_addon_root():
+    """Returns absolute path to addon´s directory"""
+    return Path(os.path.dirname(os.path.realpath(__file__)))
+
 def get_model_path():
     """Calculates and returns the standard path for the cloned repository."""
     # Ensure this path EXACTLY matches the destination used in your clone function
-    return Path.home() / "Blender_AI_Models" / "blipdiffusion_download"
+    return get_addon_root() / "models" / "blipdiffusion"
 
 def check_model_downloads():
     """Check if all needed models are downloaded"""
@@ -53,7 +57,7 @@ def check_model_downloads():
 def get_repo_root_path():
     """Calculates and returns the standard path for the cloned repository."""
     # Ensure this path EXACTLY matches the destination used in your clone function
-    return Path.home() / "Blender_AI_Models" / "DiffusionStyleTransfer_Tileable"
+    return get_addon_root() / "DiffusionStyleTransfer_Tileable"
 
 def check_repo_downloads():
     """Check if all needed models are downloaded"""

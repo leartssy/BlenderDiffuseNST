@@ -41,7 +41,7 @@ class DIFFUSEST_Properties(bpy.types.PropertyGroup):
     strength:FloatProperty(
         name="Stylization Strength",
         description="Strength of the Stylization",
-        default=0.2,
+        default=0.1,
         min=0.0,
         max=1.0,
         precision=2,
@@ -145,15 +145,13 @@ class DIFFUSEST_Properties(bpy.types.PropertyGroup):
         description="Number of steps for the diffusion process",
         default=50,
         min=10,
-        max=250,
+        max=200,
     )
 
-    attention_weight:FloatProperty(
-        name="Attention Injection Weight",
-        description="Weight of Attention Injection: High for following Style and Content Strictly",
-        default=0.7,
-        min=0.0,
-        max=1.0,
+    is_attention:BoolProperty(
+        name="Attention Injection",
+        description="_Switch of Attention Injection: High for following Style and Content Strictly",
+        default=True,
     )
 
 #seam blending options

@@ -38,3 +38,16 @@
 * Warning: if picture size is bigger than 2048, generation times will take longer
 * For more Progress Feedback during the generation, you can open the System Console
 * CRITICAL: Do not cancel the generation process as this will lead to errors
+
+
+
+4\. Uninstallation and Cleanup
+
+
+
+* To uninstall the add-on go to Edit-> Preferences -> Get Extensions: expand "Diffusion NST", click on the little arrow and uninstall
+* to completely clean any remaining saves do the following:
+* Go into your specified output image folder and delete the latents\_forward folder completely: this were saves to speed up regeneration of images
+
+
+

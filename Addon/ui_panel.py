@@ -59,7 +59,7 @@ class DIFFUSEST_PT_MainPanel(Panel):
             col = box.column(align=True)
             col.prop(props, "guidance_scale")
             col.prop(props, "ddim_steps")
-            col.prop(props, "attention_weight")
+            col.prop(props, "is_attention")
             col.prop(props, "gap")
             col.prop(props, "blur")
             col.label(text="Advanced Tiling Settings", icon='SETTINGS')
